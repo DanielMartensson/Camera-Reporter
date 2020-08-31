@@ -1,0 +1,9 @@
+#about-view {
+  display: block;
+  padding: var(--lumo-space-m) var(--lumo-space-l);
+}
+
+:host {
+  display: block;
+  padding: var(--lumo-space-m) var(--lumo-space-l);
+}

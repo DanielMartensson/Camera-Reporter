@@ -1,0 +1,9 @@
+{
+  "compatibilityMode": false,
+  "productionMode": false,
+  "npmFolder": "/home/dell/Dokument/Eclipse-Workspace/Vaadin DL4J YOLO Camera Classification Reporter",
+  "generatedFolder": "/home/dell/Dokument/Eclipse-Workspace/Vaadin DL4J YOLO Camera Classification Reporter/target/frontend",
+  "frontendFolder": "/home/dell/Dokument/Eclipse-Workspace/Vaadin DL4J YOLO Camera Classification Reporter/frontend",
+  "pnpm.enable": false,
+  "require.home.node": false
+}
