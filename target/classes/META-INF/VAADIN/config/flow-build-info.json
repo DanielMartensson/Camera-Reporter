@@ -1,9 +1,0 @@
-{
-  "compatibilityMode": false,
-  "productionMode": false,
-  "npmFolder": "/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter",
-  "generatedFolder": "/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/target/frontend",
-  "frontendFolder": "/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/frontend",
-  "pnpm.enable": false,
-  "require.home.node": false
-}
