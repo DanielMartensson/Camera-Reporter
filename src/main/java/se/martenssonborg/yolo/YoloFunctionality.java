@@ -79,7 +79,7 @@ public class YoloFunctionality {
 	public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
 	public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
-	public static void testExampleYolo(){
+	public static void testYoloWithSvhnData(){
 
 		// parameters matching the pretrained YOLO2 model
 		int widthCNN = 416;
@@ -106,10 +106,9 @@ public class YoloFunctionality {
 		Random rng = new Random(seed);
 
 		// Data
-		SvhnDataFetcher fetcher = new SvhnDataFetcher();
-		File trainDir;
 		try {
-			trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
+			SvhnDataFetcher fetcher = new SvhnDataFetcher();
+			File trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
 			File testDir = fetcher.getDataSetPath(DataSetType.TEST);
 	
 			FileSplit trainData = new FileSplit(trainDir, NativeImageLoader.ALLOWED_FORMATS, rng);
