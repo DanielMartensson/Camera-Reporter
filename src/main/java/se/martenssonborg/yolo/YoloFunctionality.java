@@ -79,7 +79,7 @@ public class YoloFunctionality {
 	public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
 	public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
-	public static void testYoloExample(){
+	public static void testExampleYolo(){
 
 		// parameters matching the pretrained YOLO2 model
 		int widthCNN = 416;
