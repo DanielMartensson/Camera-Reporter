@@ -79,7 +79,7 @@ public class YoloFunctionality {
 	public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
 	public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
-	public static void createModel() throws Exception {
+	public static void testYoloExample(){
 
 		// parameters matching the pretrained YOLO2 model
 		int widthCNN = 416;
@@ -107,35 +107,40 @@ public class YoloFunctionality {
 
 		// Data
 		SvhnDataFetcher fetcher = new SvhnDataFetcher();
-		File trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
-		File testDir = fetcher.getDataSetPath(DataSetType.TEST);
-
-		FileSplit trainData = new FileSplit(trainDir, NativeImageLoader.ALLOWED_FORMATS, rng);
-		FileSplit testData = new FileSplit(testDir, NativeImageLoader.ALLOWED_FORMATS, rng);
-
-		ObjectDetectionRecordReader recordReaderTrain = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
-		recordReaderTrain.initialize(trainData);
-
-		ObjectDetectionRecordReader recordReaderTest = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(testDir));
-		recordReaderTest.initialize(testData);
-
-		// ObjectDetectionRecordReader performs regression, so we need to specify it here
-		RecordReaderDataSetIterator train = new RecordReaderDataSetIterator(recordReaderTrain, batchSize, 1, 1, true);
-		train.setPreProcessor(new ImagePreProcessingScaler(0, 1));
-
-		RecordReaderDataSetIterator test = new RecordReaderDataSetIterator(recordReaderTest, 1, 1, 1, true);
-		test.setPreProcessor(new ImagePreProcessingScaler(0, 1));
-		
-		// Create model
-		ComputationGraph model = null;
-		String filePath = "...";
-		
-		// Build -> Train -> Save -> Validate
-		buildModel(model, priorBoxes, seed, learningRate, nBoxes, nClasses, lambdaNoObj, lambdaCoord, heightCNN, widthCNN, nChannelsCNN);
-		trainModel(model, train, nEpochs);
-		saveModel(model, filePath);
-		validateModel(model, train, test, detectionThreshold, gridWidth, gridHeight);
-
+		File trainDir;
+		try {
+			trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
+			File testDir = fetcher.getDataSetPath(DataSetType.TEST);
+	
+			FileSplit trainData = new FileSplit(trainDir, NativeImageLoader.ALLOWED_FORMATS, rng);
+			FileSplit testData = new FileSplit(testDir, NativeImageLoader.ALLOWED_FORMATS, rng);
+	
+			ObjectDetectionRecordReader recordReaderTrain = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
+			recordReaderTrain.initialize(trainData);
+	
+			ObjectDetectionRecordReader recordReaderTest = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(testDir));
+			recordReaderTest.initialize(testData);
+	
+			// ObjectDetectionRecordReader performs regression, so we need to specify it here
+			RecordReaderDataSetIterator train = new RecordReaderDataSetIterator(recordReaderTrain, batchSize, 1, 1, true);
+			train.setPreProcessor(new ImagePreProcessingScaler(0, 1));
+	
+			RecordReaderDataSetIterator test = new RecordReaderDataSetIterator(recordReaderTest, 1, 1, 1, true);
+			test.setPreProcessor(new ImagePreProcessingScaler(0, 1));
+			
+			// Create model
+			ComputationGraph model = null;
+			String filePath = "...";
+			
+			// Build -> Train -> Save -> Validate
+			buildModel(model, priorBoxes, seed, learningRate, nBoxes, nClasses, lambdaNoObj, lambdaCoord, heightCNN, widthCNN, nChannelsCNN);
+			trainModel(model, train, nEpochs);
+			saveModel(model, filePath);
+			validateModel(model, train, test, detectionThreshold, gridWidth, gridHeight);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void buildModel(ComputationGraph model, double[][] priorBoxes, int seed, double learningRate, int nBoxes, int nClasses, double lambdaNoObj, double lambdaCoord, long heightCNN, long widthCNN, long nChannelsCNN) {
@@ -183,7 +188,7 @@ public class YoloFunctionality {
 					.build();
 
 			System.out.println(model.summary(InputType.convolutional(heightCNN, widthCNN, nChannelsCNN)));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -199,7 +204,7 @@ public class YoloFunctionality {
 		log.info("Save model...");
 		try {
 			ModelSerializer.writeModel(model, filePath, true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -209,7 +214,7 @@ public class YoloFunctionality {
 		log.info("Load model...");
 		try {
 			ComputationGraph.load(new File(filePath), true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -258,7 +263,7 @@ public class YoloFunctionality {
 			frame.showImage(converter.convert(image));
 			try {
 				frame.waitKey();
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
