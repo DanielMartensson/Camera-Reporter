@@ -1,22 +1,5 @@
 package se.martenssonborg.yolo;
 
-/* *****************************************************************************
- * Copyright (c) 2020 Konduit K.K.
- * Copyright (c) 2015-2019 Skymind, Inc.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Apache License, Version 2.0 which is available at
- * https://www.apache.org/licenses/LICENSE-2.0.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
- ******************************************************************************/
-
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.opencv.opencv_core.Mat;
@@ -26,11 +9,13 @@ import org.bytedeco.opencv.opencv_core.Size;
 import org.datavec.api.records.metadata.RecordMetaDataImageURI;
 import org.datavec.api.split.FileSplit;
 import org.datavec.image.loader.NativeImageLoader;
+import org.datavec.image.recordreader.BaseImageRecordReader;
 import org.datavec.image.recordreader.objdetect.ObjectDetectionRecordReader;
 import org.datavec.image.recordreader.objdetect.impl.SvhnLabelProvider;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.fetchers.DataSetType;
 import org.deeplearning4j.datasets.fetchers.SvhnDataFetcher;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ConvolutionMode;
 import org.deeplearning4j.nn.conf.GradientNormalization;
@@ -56,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -78,8 +64,8 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
  *
  * @author saudet
  */
-public class TrainModel {
-	private static final Logger log = LoggerFactory.getLogger(TrainModel.class);
+public class YoloFunctionality {
+	private static final Logger log = LoggerFactory.getLogger(YoloFunctionality.class);
 
 	// Enable different colour bounding box for different classes
 	public static final Scalar RED = RGB(255.0, 0, 0);
@@ -93,12 +79,12 @@ public class TrainModel {
 	public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
 	public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
-	public static void main(String[] args) throws java.lang.Exception {
+	public static void createModel() throws Exception {
 
-		// parameters matching the pretrained TinyYOLO model
-		int width = 416;
-		int height = 416;
-		int nChannels = 3;
+		// parameters matching the pretrained YOLO2 model
+		int widthCNN = 416;
+		int heightCNN = 416;
+		int nChannelsCNN = 3;
 		int gridWidth = 13;
 		int gridHeight = 13;
 
@@ -116,43 +102,45 @@ public class TrainModel {
 		int batchSize = 10;
 		int nEpochs = 20;
 		double learningRate = 1e-4;
-
 		int seed = 123;
 		Random rng = new Random(seed);
 
+		// Data
 		SvhnDataFetcher fetcher = new SvhnDataFetcher();
 		File trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
 		File testDir = fetcher.getDataSetPath(DataSetType.TEST);
 
-		log.info("Load data...");
-
 		FileSplit trainData = new FileSplit(trainDir, NativeImageLoader.ALLOWED_FORMATS, rng);
 		FileSplit testData = new FileSplit(testDir, NativeImageLoader.ALLOWED_FORMATS, rng);
 
-		ObjectDetectionRecordReader recordReaderTrain = new ObjectDetectionRecordReader(height, width, nChannels, gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
+		ObjectDetectionRecordReader recordReaderTrain = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
 		recordReaderTrain.initialize(trainData);
 
-		ObjectDetectionRecordReader recordReaderTest = new ObjectDetectionRecordReader(height, width, nChannels, gridHeight, gridWidth, new SvhnLabelProvider(testDir));
+		ObjectDetectionRecordReader recordReaderTest = new ObjectDetectionRecordReader(heightCNN, widthCNN, nChannelsCNN, gridHeight, gridWidth, new SvhnLabelProvider(testDir));
 		recordReaderTest.initialize(testData);
 
-		// ObjectDetectionRecordReader performs regression, so we need to specify it
-		// here
+		// ObjectDetectionRecordReader performs regression, so we need to specify it here
 		RecordReaderDataSetIterator train = new RecordReaderDataSetIterator(recordReaderTrain, batchSize, 1, 1, true);
 		train.setPreProcessor(new ImagePreProcessingScaler(0, 1));
 
 		RecordReaderDataSetIterator test = new RecordReaderDataSetIterator(recordReaderTest, 1, 1, 1, true);
 		test.setPreProcessor(new ImagePreProcessingScaler(0, 1));
+		
+		// Create model
+		ComputationGraph model = null;
+		String filePath = "...";
+		
+		// Build -> Train -> Save -> Validate
+		buildModel(model, priorBoxes, seed, learningRate, nBoxes, nClasses, lambdaNoObj, lambdaCoord, heightCNN, widthCNN, nChannelsCNN);
+		trainModel(model, train, nEpochs);
+		saveModel(model, filePath);
+		validateModel(model, train, test, detectionThreshold, gridWidth, gridHeight);
 
-		ComputationGraph model;
-		String modelFilename = "model.zip";
+	}
 
-		if (new File(modelFilename).exists()) {
-			log.info("Load model...");
-
-			model = ComputationGraph.load(new File(modelFilename), true);
-		} else {
-			log.info("Build model...");
-
+	public static void buildModel(ComputationGraph model, double[][] priorBoxes, int seed, double learningRate, int nBoxes, int nClasses, double lambdaNoObj, double lambdaCoord, long heightCNN, long widthCNN, long nChannelsCNN) {
+		log.info("Build model...");
+		try {
 			ComputationGraph pretrained = (ComputationGraph) YOLO2.builder().build().initPretrained();
 			INDArray priors = Nd4j.create(priorBoxes);
 
@@ -193,17 +181,41 @@ public class TrainModel {
 							"convolution2d_9")
 					.setOutputs("outputs")
 					.build();
-			System.out.println(model.summary(InputType.convolutional(height, width, nChannels)));
 
-			log.info("Train model...");
-
-			model.setListeners(new ScoreIterationListener(1));
-			model.fit(train, nEpochs);
-
-			log.info("Save model...");
-			ModelSerializer.writeModel(model, modelFilename, true);
+			System.out.println(model.summary(InputType.convolutional(heightCNN, widthCNN, nChannelsCNN)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	}
 
+	public static void trainModel(ComputationGraph model, RecordReaderDataSetIterator train, int nEpochs) {
+		log.info("Train model...");
+		model.setListeners(new ScoreIterationListener(1));
+		model.fit(train, nEpochs);
+	}
+
+	public static void saveModel(ComputationGraph model, String filePath) {
+		log.info("Save model...");
+		try {
+			ModelSerializer.writeModel(model, filePath, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void loadModel(ComputationGraph model, String filePath) {
+		log.info("Load model...");
+		try {
+			ComputationGraph.load(new File(filePath), true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void validateModel(ComputationGraph model, RecordReaderDataSetIterator train, RecordReaderDataSetIterator test, double detectionThreshold, double gridWidth, double gridHeight) {
 		// visualize results on the test set
 		NativeImageLoader imageLoader = new NativeImageLoader();
 		CanvasFrame frame = new CanvasFrame("HouseNumberDetection");
@@ -244,7 +256,12 @@ public class TrainModel {
 			frame.setTitle(new File(metadata.getURI()).getName() + " - HouseNumberDetection");
 			frame.setCanvasSize(w, h);
 			frame.showImage(converter.convert(image));
-			frame.waitKey();
+			try {
+				frame.waitKey();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		frame.dispose();
 	}

@@ -15,11 +15,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<vaadin.version>14.3.4</vaadin.version>
 		<dl4j-master.version>1.0.0-beta7</dl4j-master.version>
-		<nd4j.backend>nd4j-native</nd4j.backend>
 	</properties>
 	
-
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -121,7 +118,6 @@
 			<artifactId>a-vaadin-helper</artifactId>
 			<version>1.2.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -157,6 +153,7 @@
 			<artifactId>deeplearning4j-zoo</artifactId>
 			<version>${dl4j-master.version}</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
