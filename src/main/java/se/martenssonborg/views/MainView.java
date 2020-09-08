@@ -12,6 +12,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 
+import se.martenssonborg.yolo.YoloFunctionality;
+
 /**
  * The main view contains a button and a click listener.
  */
@@ -44,5 +46,11 @@ public class MainView extends VerticalLayout {
 		 * använder Source -> Format = Snyggar till din kod. Du kan ställa till
 		 * radbrytningarna i Window -> Preferences -> Java -> Code Style -> Formatter -> Edit -> Line Warping. Sätt maximum till högt tall t.ex. 300
 		 */
+		
+		Button button = new Button("Kör YOLO");
+		button.addClickListener(e -> {
+			YoloFunctionality.testYoloWithSvhnData(); // Denna är statisk. Därför kan vi anropa den så här utan att skapa objekt! Funktionsprogrammering med andra ord.
+		});
+		add(button);
 	}
 }
