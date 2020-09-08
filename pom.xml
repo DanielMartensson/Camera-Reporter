@@ -13,10 +13,12 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
 		<vaadin.version>14.3.4</vaadin.version>
-
+		<dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+		<nd4j.backend>nd4j-native</nd4j.backend>
 	</properties>
+	
+
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -142,6 +144,34 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- For Detection with DL4J -->
+		<dependency>
+			<groupId>org.datavec</groupId>
+			<artifactId>datavec-data-image</artifactId>
+			<version>${dl4j-master.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.deeplearning4j</groupId>
+			<artifactId>deeplearning4j-datasets</artifactId>
+			<version>${dl4j-master.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.deeplearning4j</groupId>
+			<artifactId>deeplearning4j-core</artifactId>
+			<version>${dl4j-master.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.deeplearning4j</groupId>
+			<artifactId>deeplearning4j-zoo</artifactId>
+			<version>${dl4j-master.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacv-platform</artifactId>
+			<version>1.5.2</version>
 		</dependency>
 	</dependencies>
 
