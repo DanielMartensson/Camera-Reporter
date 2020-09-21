@@ -15,8 +15,9 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<vaadin.version>14.3.4</vaadin.version>
 		<dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+		<sarxos.version>0.3.12</sarxos.version>
 	</properties>
-	
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -153,7 +154,30 @@
 			<artifactId>deeplearning4j-zoo</artifactId>
 			<version>${dl4j-master.version}</version>
 		</dependency>
-		
+
+		<!-- Camera -->
+		<dependency>
+			<groupId>com.github.sarxos</groupId>
+			<artifactId>webcam-capture</artifactId>
+			<version>${sarxos.version}</version>
+		</dependency>
+
+		<!-- CRUD -->
+		<dependency>
+			<groupId>org.vaadin.crudui</groupId>
+			<artifactId>crudui</artifactId>
+			<version>4.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
