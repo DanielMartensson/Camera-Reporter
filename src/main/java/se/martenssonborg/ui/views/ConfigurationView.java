@@ -5,10 +5,10 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
-import se.martenssonborg.entity.Group;
-import se.martenssonborg.entity.User;
-import se.martenssonborg.service.GroupService;
-import se.martenssonborg.service.UserService;
+import se.martenssonborg.entity.ObjectNameEntity;
+import se.martenssonborg.entity.YoloObjectEntity;
+import se.martenssonborg.service.ObjectNameService;
+import se.martenssonborg.service.YoloObjectService;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -31,32 +31,31 @@ public class ConfigurationView extends AppLayout {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public ConfigurationView(UserService userService, GroupService groupService) {
+	public ConfigurationView(YoloObjectService yoloObjectService, ObjectNameService objectNameService) {
+		
+		System.out.println(yoloObjectService == null);
+		System.out.println(objectNameService == null);
 		// crud instance
-        GridCrud<User> crud = new GridCrud<>(User.class);
+        GridCrud<YoloObjectEntity> crud = new GridCrud<>(YoloObjectEntity.class);
 
         // grid configuration
-        crud.getGrid().setColumns("name", "birthDate", "maritalStatus", "email", "phoneNumber", "active");
+        crud.getGrid().setColumns("email", "active", "objectName", "threshold");
         crud.getGrid().setColumnReorderingAllowed(true);
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("name", "birthDate", "email", "salary", "phoneNumber", "maritalStatus", "groups", "active", "mainGroup");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "birthDate", "email", "salary", "phoneNumber", "maritalStatus", "groups", "active", "mainGroup", "password");
-        crud.getCrudFormFactory().setFieldProvider("mainGroup", new ComboBoxProvider<>(groupService.findAll()));
-        crud.getCrudFormFactory().setFieldProvider("groups", new CheckBoxGroupProvider<>(groupService.findAll()));
-        crud.getCrudFormFactory().setFieldProvider("groups", new CheckBoxGroupProvider<>("Groups", groupService.findAll(), Group::getName));
-        crud.getCrudFormFactory().setFieldProvider("mainGroup", new ComboBoxProvider<>("Main Group", groupService.findAll(), new TextRenderer<>(Group::getName), Group::getName));
+        crud.getCrudFormFactory().setVisibleProperties("email", "active", "threshold", "objectName");
+        crud.getCrudFormFactory().setFieldProvider("objectName", new ComboBoxProvider<>("Object Name", objectNameService.findAll(), new TextRenderer<>(ObjectNameEntity::getName), ObjectNameEntity::getName));
 
         // layout configuration
         setContent(crud);
         crud.setFindAllOperationVisible(false);
 
         // logic configuration
-        crud.setOperations(() -> userService.findAll(),
-                user -> userService.save(user),
-                user -> userService.save(user),
-                user -> userService.delete(user)
+        crud.setOperations(() -> yoloObjectService.findAll(),
+                user -> yoloObjectService.save(user),
+                user -> yoloObjectService.save(user),
+                user -> yoloObjectService.delete(user)
         );
 	}
 }

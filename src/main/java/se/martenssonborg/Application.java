@@ -1,5 +1,6 @@
 package se.martenssonborg;
 
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -13,3 +14,4 @@ public class Application extends SpringBootServletInitializer {
     }
 
 }
+
