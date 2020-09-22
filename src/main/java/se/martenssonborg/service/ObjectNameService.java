@@ -31,4 +31,8 @@ public class ObjectNameService {
     public void delete(ObjectNameEntity objectNameEntity) {
     	objectNameRepository.delete(objectNameEntity);
     }
+    
+    public void deleteAll() {
+    	objectNameRepository.deleteAll();
+    }
 }

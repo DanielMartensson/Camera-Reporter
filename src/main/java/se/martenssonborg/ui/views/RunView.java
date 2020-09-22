@@ -13,6 +13,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
@@ -48,6 +49,8 @@ public class RunView extends AppLayout {
 		
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
+		realTimeCameraImage.setWidth("1280px");
+		realTimeCameraImage.setHeight("720px");
 		realTimeCameraImage.setTitle("Real Time Camera");
 		
 		// Start the thread
@@ -64,11 +67,11 @@ public class RunView extends AppLayout {
 		createYOLOStartButton(realTimeCameraImage, cameras);
 		
 		// Content
-		FormLayout buttonLayout = new FormLayout();
-		FormLayout imageLayout = new FormLayout();
-		buttonLayout.add(startStopYOLO, cameras);
-		imageLayout.add(realTimeCameraImage);
-		setContent(new VerticalLayout(buttonLayout, imageLayout));
+		VerticalLayout layout = new VerticalLayout();
+		layout.add(new FormLayout(startStopYOLO, cameras));
+		layout.add(realTimeCameraImage);
+		layout.setAlignItems(Alignment.CENTER);
+		setContent(layout);
 				
 	}
 	
