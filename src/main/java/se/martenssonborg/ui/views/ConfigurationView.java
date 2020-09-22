@@ -9,6 +9,7 @@ import se.martenssonborg.entity.ObjectNameEntity;
 import se.martenssonborg.entity.YoloObjectEntity;
 import se.martenssonborg.service.ObjectNameService;
 import se.martenssonborg.service.YoloObjectService;
+import se.martenssonborg.ui.views.templates.BarForAppLayout;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -32,30 +33,32 @@ public class ConfigurationView extends AppLayout {
 	private static final long serialVersionUID = 1L;
 
 	public ConfigurationView(YoloObjectService yoloObjectService, ObjectNameService objectNameService) {
-		
-		System.out.println(yoloObjectService == null);
-		System.out.println(objectNameService == null);
-		// crud instance
+		// Banner and tabs
+		BarForAppLayout barForApplayput = new BarForAppLayout();
+		addToNavbar(barForApplayput.getDrawerToggle(), barForApplayput.getImg());
+		addToDrawer(barForApplayput.getTabs());
+
+		// CRUD instance
         GridCrud<YoloObjectEntity> crud = new GridCrud<>(YoloObjectEntity.class);
 
-        // grid configuration
-        crud.getGrid().setColumns("email", "active", "objectName", "threshold");
+        // Grid configuration
+        crud.getGrid().setColumns("email", "active", "objectName", "threshold", "message");
         crud.getGrid().setColumnReorderingAllowed(true);
 
-        // form configuration
+        // CRUD form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("email", "active", "threshold", "objectName");
+        crud.getCrudFormFactory().setVisibleProperties("email", "active", "threshold", "objectName", "message");
         crud.getCrudFormFactory().setFieldProvider("objectName", new ComboBoxProvider<>("Object Name", objectNameService.findAll(), new TextRenderer<>(ObjectNameEntity::getName), ObjectNameEntity::getName));
 
-        // layout configuration
-        setContent(crud);
-        crud.setFindAllOperationVisible(false);
-
-        // logic configuration
+        // CRUD logic configuration
         crud.setOperations(() -> yoloObjectService.findAll(),
                 user -> yoloObjectService.save(user),
                 user -> yoloObjectService.save(user),
                 user -> yoloObjectService.delete(user)
         );
+        
+        // Layout configuration
+        setContent(crud);
+        crud.setFindAllOperationVisible(false);
 	}
 }

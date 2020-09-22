@@ -38,6 +38,7 @@ public class RunView extends AppLayout {
 	private static final String STOP = "STOP";
 	private Webcam selectedWebcam = null;
 	private AtomicBoolean startStopThread = new AtomicBoolean();
+	private Button startStopYOLO;
 
 	public RunView() {
 		// Banner and tabs
@@ -58,8 +59,9 @@ public class RunView extends AppLayout {
 		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage);
 		
 		// Start and stop button for YOLO
-		Button startStopYOLO = new Button(START);
-		createYOLOStartButton(startStopYOLO, realTimeCameraImage, cameras);
+		startStopYOLO = new Button(START);
+		startStopYOLO.setEnabled(false); // We need to first select the camera
+		createYOLOStartButton(realTimeCameraImage, cameras);
 		
 		// Content
 		FormLayout buttonLayout = new FormLayout();
@@ -77,7 +79,7 @@ public class RunView extends AppLayout {
 	 * @param realTimeCameraImage 
 	 * @param cameras 
 	 */
-	private void createYOLOStartButton(Button startStopYOLO, Image realTimeCameraImage, Select<String> cameras) {
+	private void createYOLOStartButton(Image realTimeCameraImage, Select<String> cameras) {
 		startStopYOLO.addClickListener(e -> {
 			if (startStopThread.get() == false) {
 				startStopYOLO.setText(STOP);
@@ -136,9 +138,11 @@ public class RunView extends AppLayout {
 		selectedWebcam = webcamsList.stream().filter(x -> selectedCameraName.equals(x.getName())).findFirst().get(); // This generates a new object of the web cam
 		try {
 			selectedWebcam.open();	
+			startStopYOLO.setEnabled(true);
 			imageShowRealTimeThread.setSelectedWebcam(selectedWebcam);
 			imageShowRealTimeThread.setRealTimeCameraImage(realTimeCameraImage);
 		}catch(Exception e) {
+			startStopYOLO.setEnabled(false);
 			Notification notification = new Notification("You cannot select this camera!", 2000);
 			notification.open();
 		}
