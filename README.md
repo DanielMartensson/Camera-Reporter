@@ -1,9 +1,8 @@
-Börja installera NodeJS 
-Sedan ladda ned detta projekt. Importerar det som "Existing Maven projekt". Ange sökvägen till .pom xml filen i projektet.
+First step!
 
-Notera att du måste klicka på projektet först innan du klickar på "Run as". 
-När du har importerat projektet så kör du projektet via Run -> Run as" -> Run Maven Build... -> Goals:spring-boot:run
+1. Install NodeJS
+2. Make sure that you have MySQL installed, with a user (see application.properties)
+3. Run this maven project with `mvn spring-boot:run`
 
-Efter detta är färdigt så klickar du bara på "Run", eller "Run -> Run History"
 
 
