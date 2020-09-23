@@ -102,6 +102,7 @@ public class YoloFunctionality {
 		Random rng = new Random(seed);
 		
 		// Här gör jag en ändring!
+		// Här gör DU en ändring! 
 
 		// Data
 		try {
