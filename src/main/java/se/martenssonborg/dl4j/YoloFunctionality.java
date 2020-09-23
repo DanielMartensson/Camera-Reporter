@@ -1,4 +1,4 @@
-package se.martenssonborg.yolo;
+package se.martenssonborg.dl4j;
 
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.OpenCVFrameConverter;
