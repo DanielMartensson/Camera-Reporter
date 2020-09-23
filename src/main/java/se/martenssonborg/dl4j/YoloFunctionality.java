@@ -100,6 +100,8 @@ public class YoloFunctionality {
 		double learningRate = 1e-4;
 		int seed = 123;
 		Random rng = new Random(seed);
+		
+		// Här gör jag en ändring!
 
 		// Data
 		try {
