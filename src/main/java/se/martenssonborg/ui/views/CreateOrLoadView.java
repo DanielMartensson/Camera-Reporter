@@ -19,14 +19,14 @@ import se.martenssonborg.ui.views.templates.BarForAppLayout;
 @Route("createload")
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
-public class CreateOrLoad extends AppLayout {
+public class CreateOrLoadView extends AppLayout {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public CreateOrLoad(ObjectNameService objectNameService) {
+	public CreateOrLoadView(ObjectNameService objectNameService) {
 		// Banner and tabs
 		BarForAppLayout barForApplayput = new BarForAppLayout();
 		addToNavbar(barForApplayput.getDrawerToggle(), barForApplayput.getImg());

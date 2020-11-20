@@ -8,7 +8,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 
 import lombok.Data;
 import se.martenssonborg.ui.views.ConfigurationView;
-import se.martenssonborg.ui.views.CreateOrLoad;
+import se.martenssonborg.ui.views.CreateOrLoadView;
 import se.martenssonborg.ui.views.RunView;
 
 @Data
@@ -38,7 +38,7 @@ public class BarForAppLayout {
         });
         Tab createOrLoadTab = new Tab("Create or Load");
         createOrLoadTab.getElement().addEventListener("click", e -> {
-        	UI.getCurrent().navigate(CreateOrLoad.class);
+        	UI.getCurrent().navigate(CreateOrLoadView.class);
         });
         tabs = new Tabs(runTab, configurationTab, createOrLoadTab);
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
