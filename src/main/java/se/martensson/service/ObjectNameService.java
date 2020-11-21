@@ -1,11 +1,11 @@
-package se.martenssonborg.service;
+package se.martensson.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import se.martenssonborg.entity.ObjectNameEntity;
-import se.martenssonborg.repository.ObjectNameRepository;
+import se.martensson.entity.ObjectNameEntity;
+import se.martensson.repository.ObjectNameRepository;
 
 @Service
 public class ObjectNameService {

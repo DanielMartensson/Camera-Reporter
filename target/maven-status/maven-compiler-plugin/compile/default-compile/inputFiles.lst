@@ -1,13 +1,13 @@
-/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/ui/views/CreateOrLoad.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/service/ObjectNameService.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/repository/YoloObjectRepository.java
+/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/ui/views/CreateOrLoadView.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/ui/views/ConfigurationView.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/entity/YoloObjectEntity.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/service/YoloObjectService.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/ui/views/RunView.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/repository/ObjectNameRepository.java
+/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/dl4j/YoloFunctionality.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/threads/ImageShowRealTimeThread.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/entity/ObjectNameEntity.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/ui/views/templates/BarForAppLayout.java
-/home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/yolo/YoloFunctionality.java
 /home/dell/Dokument/GitHub/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/src/main/java/se/martenssonborg/Application.java

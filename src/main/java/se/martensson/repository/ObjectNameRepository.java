@@ -1,9 +1,9 @@
-package se.martenssonborg.repository;
+package se.martensson.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import se.martenssonborg.entity.ObjectNameEntity;
+import se.martensson.entity.ObjectNameEntity;
 
 @Repository
 public interface ObjectNameRepository extends JpaRepository<ObjectNameEntity, Long>{

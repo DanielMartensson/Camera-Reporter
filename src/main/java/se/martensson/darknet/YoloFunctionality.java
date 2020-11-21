@@ -1,4 +1,4 @@
-package se.martenssonborg.dl4j;
+package se.martensson.darknet;
 
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.OpenCVFrameConverter;
@@ -173,15 +173,13 @@ public class YoloFunctionality {
 									.convolutionMode(ConvolutionMode.Same)
 									.weightInit(WeightInit.XAVIER)
 									.activation(Activation.IDENTITY)
-									.build(),
-							"leaky_re_lu_8")
+									.build(), "leaky_re_lu_8")
 					.addLayer("outputs",
 							new Yolo2OutputLayer.Builder()
 									.lambdaNoObj(lambdaNoObj)
 									.lambdaCoord(lambdaCoord)
 									.boundingBoxPriors(priors)
-									.build(),
-							"convolution2d_9")
+									.build(), "convolution2d_9")
 					.setOutputs("outputs")
 					.build();
 

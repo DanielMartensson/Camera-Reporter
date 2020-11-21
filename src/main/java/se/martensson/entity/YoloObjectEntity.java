@@ -1,4 +1,4 @@
-package se.martenssonborg.entity;
+package se.martensson.entity;
 
 import java.math.BigDecimal;
 

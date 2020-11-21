@@ -1,4 +1,4 @@
-package se.martenssonborg.entity;
+package se.martensson.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

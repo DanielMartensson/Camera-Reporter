@@ -1,15 +1,15 @@
-package se.martenssonborg.ui.views;
+package se.martensson.ui.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
-import se.martenssonborg.entity.ObjectNameEntity;
-import se.martenssonborg.entity.YoloObjectEntity;
-import se.martenssonborg.service.ObjectNameService;
-import se.martenssonborg.service.YoloObjectService;
-import se.martenssonborg.ui.views.templates.BarForAppLayout;
+import se.martensson.entity.ObjectNameEntity;
+import se.martensson.entity.YoloObjectEntity;
+import se.martensson.service.ObjectNameService;
+import se.martensson.service.YoloObjectService;
+import se.martensson.ui.views.templates.BarForAppLayout;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -48,6 +48,8 @@ public class ConfigurationView extends AppLayout {
         // CRUD form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("email", "active", "threshold", "objectName", "message");
+        crud.getCrudFormFactory().setDisabledProperties(CrudOperation.DELETE, "email", "active", "threshold", "objectName", "message");
+        crud.getCrudFormFactory().setDisabledProperties(CrudOperation.ADD, "email", "active", "threshold", "objectName", "message");
         crud.getCrudFormFactory().setFieldProvider("objectName", new ComboBoxProvider<>("Object Name", objectNameService.findAll(), new TextRenderer<>(ObjectNameEntity::getName), ObjectNameEntity::getName));
 
         // CRUD logic configuration

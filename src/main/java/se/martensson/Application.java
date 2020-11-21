@@ -1,4 +1,4 @@
-package se.martenssonborg;
+package se.martensson;
 
 
 import org.springframework.boot.SpringApplication;

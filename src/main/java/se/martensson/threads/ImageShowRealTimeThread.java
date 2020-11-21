@@ -1,4 +1,4 @@
-package se.martenssonborg.threads;
+package se.martensson.threads;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

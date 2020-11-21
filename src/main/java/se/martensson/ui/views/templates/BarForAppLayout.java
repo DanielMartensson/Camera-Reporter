@@ -1,4 +1,4 @@
-package se.martenssonborg.ui.views.templates;
+package se.martensson.ui.views.templates;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -7,9 +7,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
 import lombok.Data;
-import se.martenssonborg.ui.views.ConfigurationView;
-import se.martenssonborg.ui.views.CreateOrLoadView;
-import se.martenssonborg.ui.views.RunView;
+import se.martensson.ui.views.ConfigurationView;
+import se.martensson.ui.views.CreateOrLoadView;
+import se.martensson.ui.views.RunView;
 
 @Data
 public class BarForAppLayout {

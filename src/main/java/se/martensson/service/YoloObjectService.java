@@ -1,11 +1,11 @@
-package se.martenssonborg.service;
+package se.martensson.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import se.martenssonborg.entity.YoloObjectEntity;
-import se.martenssonborg.repository.YoloObjectRepository;
+import se.martensson.entity.YoloObjectEntity;
+import se.martensson.repository.YoloObjectRepository;
 
 
 @Service

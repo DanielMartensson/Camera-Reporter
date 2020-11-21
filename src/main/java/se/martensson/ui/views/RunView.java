@@ -1,4 +1,4 @@
-package se.martenssonborg.ui.views;
+package se.martensson.ui.views;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +20,8 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 
-import se.martenssonborg.threads.ImageShowRealTimeThread;
-import se.martenssonborg.ui.views.templates.BarForAppLayout;
+import se.martensson.threads.ImageShowRealTimeThread;
+import se.martensson.ui.views.templates.BarForAppLayout;
 
 
 @Route("")
@@ -49,6 +49,7 @@ public class RunView extends AppLayout {
 		
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
+		realTimeCameraImage.setClassName("img-horizontal-mirror");
 		realTimeCameraImage.setWidth("1280px");
 		realTimeCameraImage.setHeight("720px");
 		realTimeCameraImage.setTitle("Real Time Camera");
