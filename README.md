@@ -1,8 +1,18 @@
 # Camera Reporter
 
-This projects handels inteligent monitoring. It uses Darknet AI to classify objects from a USB camera picture, or embedded web cam inside a laptop.
+This projects handels intelligent monitoring. It uses Darknet AI to classify objects from a USB camera picture, or embedded web cam inside a laptop.
 If a object is identified, then this web application and send a mail e.g alarm mail with a message to a specific user. Very usefull if you want to have 
 a specific alarm and not just a regular alarm. 
+
+Use this software if you want handel intelligent monitoring for security.
+
+# Features
+
+- Mail service
+- Object identification
+- Mobile and tablet suitable
+- Login screen with password requirement
+- Database storage for emails and messages
 
 # Pictures
 
