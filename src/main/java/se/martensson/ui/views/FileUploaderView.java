@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import org.apache.commons.io.IOUtils;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HtmlComponent;
@@ -136,7 +138,6 @@ public class FileUploaderView extends AppLayout {
 			saveMultiFile(event.getMIMEType(), event.getFileName(), dataBuffer, DATA);
 		});
 		
-				
 		// Layout
 		VerticalLayout layout = new VerticalLayout();
 		FormLayout buttonForm = new FormLayout(loadDarknetFileButton, loadWeightsButton, loadConfigurationButton, loadDataButton, deleteFileButton);
@@ -146,8 +147,6 @@ public class FileUploaderView extends AppLayout {
 		
 	}
 	
-	
-
 	private void scanFolderFiles(Select<ListUploadedFiles> uploadedFile) {
 		// Get all the current files
 		File[] configurationFiles = new File("Darknet/" + CFG).listFiles((File pathname) -> pathname.isFile());
@@ -172,12 +171,16 @@ public class FileUploaderView extends AppLayout {
 
 	private void saveMultiFile(String mimeType, String fileName, MultiFileMemoryBuffer loadWeightsBuffer, String fileType) {
 		try {
+			// Save
 			String filePath = "Darknet/" + fileType + "/" + fileName;
 			Path path = Paths.get(filePath); // If not exist
 			Files.createDirectories(path.getParent());
 			FileOutputStream fos = new FileOutputStream(filePath);
 		    fos.write(loadWeightsBuffer.getInputStream(fileName).readAllBytes());
 		    fos.close();
+		    
+		    // Make it runnable
+		    makeAllRunable();
 		    writeToTerminal("Uploaded new file at: " + filePath);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -185,6 +188,21 @@ public class FileUploaderView extends AppLayout {
 		}
 	}
 	
+	private void makeAllRunable() {
+		
+		try {
+			ProcessBuilder processBuilder = new ProcessBuilder();
+		    processBuilder.directory(new File("Darknet"));
+		    processBuilder.command("bash", "-c", "chmod 777 -R *");
+		    processBuilder.redirectErrorStream(true);
+		    Process process = processBuilder.start();
+		    process.waitFor();
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void saveSingleFile(String mimeType, String fileName, MemoryBuffer loadDarknetFileBuffer) {
 		try {
 			String filePath = "Darknet/" + fileName;
@@ -193,14 +211,13 @@ public class FileUploaderView extends AppLayout {
 			FileOutputStream fos = new FileOutputStream(filePath);
 		    fos.write(loadDarknetFileBuffer.getInputStream().readAllBytes());
 		    fos.close();
+		    makeAllRunable();
 		    writeToTerminal("Uploaded new file at: " + filePath);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
-
 
 	private void writeToTerminal(String newLine) {
 		String currentText = terminal.getValue();

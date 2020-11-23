@@ -21,7 +21,7 @@ public class InitialStartUp implements ApplicationListener<ContextRefreshedEvent
 	private void createDarknetFolders() {
 		String[] folderPaths = new String[] {"Darknet/cfg", "Darknet/data", "Darknet/weights", "Darknet/data/labels"};
 		for(String path : folderPaths) {
-			new File(path).mkdirs();
+			new File(path).mkdirs(); // If not exist
 		}
 	}
 }
