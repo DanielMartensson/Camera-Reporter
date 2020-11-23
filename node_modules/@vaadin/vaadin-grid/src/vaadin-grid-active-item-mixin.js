@@ -13,6 +13,7 @@ export const ActiveItemMixin = superClass => class ActiveItemMixin extends super
       /**
        * The item user has last interacted with. Turns to `null` after user deactivates
        * the item by re-interacting with the currently active item.
+       * @type {GridItem}
        */
       activeItem: {
         type: Object,
@@ -29,6 +30,7 @@ export const ActiveItemMixin = superClass => class ActiveItemMixin extends super
     this.addEventListener('cell-activate', this._activateItem.bind(this));
   }
 
+  /** @private */
   _activateItem(e) {
     const model = e.detail.model;
     const clickedItem = model ? model.item : null;
@@ -38,9 +40,13 @@ export const ActiveItemMixin = superClass => class ActiveItemMixin extends super
     }
   }
 
-  // we need to listen to click instead of tap because on mobile safari, the
-  // document.activeElement has not been updated (focus has not been shifted)
-  // yet at the point when tap event is being executed.
+  /**
+   * We need to listen to click instead of tap because on mobile safari, the
+   * document.activeElement has not been updated (focus has not been shifted)
+   * yet at the point when tap event is being executed.
+   * @param {!MouseEvent} e
+   * @protected
+   */
   _onClick(e) {
     if (e.defaultPrevented) {
       // Something has handled this click already, e. g., <vaadin-grid-sorter>
@@ -65,15 +71,29 @@ export const ActiveItemMixin = superClass => class ActiveItemMixin extends super
     }
   }
 
+  /**
+   * @param {!Element} target
+   * @return {boolean}
+   * @protected
+   */
   _isFocusable(target) {
-    if (!target.parentNode) {
-      return false;
-    }
-    const focusables = Array.from(target.parentNode
-      .querySelectorAll('[tabindex], button, input, select, textarea, object, iframe, label, a[href], area[href]'))
-      .filter(element => element.getAttribute('part') !== 'cell body-cell');
-
-    const isFocusableElement = focusables.indexOf(target) !== -1;
-    return !target.disabled && isFocusableElement;
+    return isFocusable(target);
   }
+};
+
+/**
+ * @param {!Element} target
+ * @return {boolean}
+ * @protected
+ */
+export const isFocusable = (target) => {
+  if (!target.parentNode) {
+    return false;
+  }
+  const focusables = Array.from(target.parentNode
+    .querySelectorAll('[tabindex], button, input, select, textarea, object, iframe, label, a[href], area[href]'))
+    .filter(element => element.getAttribute('part') !== 'cell body-cell');
+
+  const isFocusableElement = focusables.indexOf(target) !== -1;
+  return !target.disabled && isFocusableElement;
 };

@@ -18,13 +18,15 @@ export const StylingMixin = superClass => class StylingMixin extends superClass 
        *
        * Receives two arguments:
        * - `column` The `<vaadin-grid-column>` element (`undefined` for details-cell).
-       * - `rowData` The object with the properties related with
+       * - `model` The object with the properties related with
        *   the rendered item, contains:
-       *   - `rowData.index` The index of the item.
-       *   - `rowData.item` The item.
-       *   - `rowData.expanded` Sublevel toggle state.
-       *   - `rowData.level` Level of the tree represented with a horizontal offset of the toggle button.
-       *   - `rowData.selected` Selected state.
+       *   - `model.index` The index of the item.
+       *   - `model.item` The item.
+       *   - `model.expanded` Sublevel toggle state.
+       *   - `model.level` Level of the tree represented with a horizontal offset of the toggle button.
+       *   - `model.selected` Selected state.
+       *
+       * @type {GridCellClassNameGenerator | null | undefined}
        */
       cellClassNameGenerator: Function
     };
@@ -51,13 +53,14 @@ export const StylingMixin = superClass => class StylingMixin extends superClass 
       row => this._generateCellClassNames(row, this.__getRowModel(row)));
   }
 
-  _generateCellClassNames(row, rowData) {
+  /** @private */
+  _generateCellClassNames(row, model) {
     Array.from(row.children).forEach(cell => {
       if (cell.__generatedClasses) {
         cell.__generatedClasses.forEach(className => cell.classList.remove(className));
       }
       if (this.cellClassNameGenerator) {
-        const result = this.cellClassNameGenerator(cell._column, rowData);
+        const result = this.cellClassNameGenerator(cell._column, model);
         cell.__generatedClasses = result && result.split(' ').filter(className => className.length > 0);
         if (cell.__generatedClasses) {
           cell.__generatedClasses.forEach(className => cell.classList.add(className));

@@ -15,12 +15,18 @@ export const SortMixin = superClass => class SortMixin extends superClass {
     return {
       /**
        * When `true`, all `<vaadin-grid-sorter>` are applied for sorting.
+       * @attr {boolean} multi-sort
+       * @type {boolean}
        */
       multiSort: {
         type: Boolean,
         value: false
       },
 
+      /**
+       * @type {!Array<!GridSorter>}
+       * @protected
+       */
       _sorters: {
         type: Array,
         value: function() {
@@ -28,6 +34,7 @@ export const SortMixin = superClass => class SortMixin extends superClass {
         }
       },
 
+      /** @private */
       _previousSorters: {
         type: Array,
         value: function() {
@@ -37,6 +44,7 @@ export const SortMixin = superClass => class SortMixin extends superClass {
     };
   }
 
+  /** @protected */
   ready() {
     super.ready();
     this.addEventListener('sorter-changed', this._onSorterChanged);
@@ -58,6 +66,7 @@ export const SortMixin = superClass => class SortMixin extends superClass {
     }
   }
 
+  /** @private */
   _onSorterChanged(e) {
     const sorter = e.target;
 
@@ -93,6 +102,10 @@ export const SortMixin = superClass => class SortMixin extends superClass {
     this._previousSorters = this._mapSorters();
   }
 
+  /**
+   * @return {!Array<!GridSorter>}
+   * @protected
+   */
   _mapSorters() {
     return this._sorters.map(sorter => {
       return {
@@ -102,6 +115,7 @@ export const SortMixin = superClass => class SortMixin extends superClass {
     });
   }
 
+  /** @private */
   _removeArrayItem(array, item) {
     const index = array.indexOf(item);
     if (index > -1) {

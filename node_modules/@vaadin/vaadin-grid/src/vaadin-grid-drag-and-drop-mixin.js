@@ -32,11 +32,14 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
        * - `on-top`: The drop event can happen on top of Grid rows.
        * - `on-top-or-between`: The drop event can happen either on top of or between Grid rows.
        * - `on-grid`: The drop event will not happen on any specific row, it will show the drop target outline around the whole grid.
+       * @attr {between|on-top|on-top-or-between|on-grid} drop-mode
+       * @type {GridDropMode | null | undefined}
        */
       dropMode: String,
 
       /**
        * Marks the grid's rows to be available for dragging.
+       * @attr {boolean} rows-draggable
        */
       rowsDraggable: Boolean,
 
@@ -45,13 +48,15 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
        * if dragging of the row should be disabled.
        *
        * Receives one argument:
-       * - `rowData` The object with the properties related with
+       * - `model` The object with the properties related with
        *   the rendered item, contains:
-       *   - `rowData.index` The index of the item.
-       *   - `rowData.item` The item.
-       *   - `rowData.expanded` Sublevel toggle state.
-       *   - `rowData.level` Level of the tree represented with a horizontal offset of the toggle button.
-       *   - `rowData.selected` Selected state.
+       *   - `model.index` The index of the item.
+       *   - `model.item` The item.
+       *   - `model.expanded` Sublevel toggle state.
+       *   - `model.level` Level of the tree represented with a horizontal offset of the toggle button.
+       *   - `model.selected` Selected state.
+       *
+       * @type {GridDragAndDropFilter | null | undefined}
        */
       dragFilter: Function,
 
@@ -60,16 +65,19 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
        * if dropping on the row should be disabled.
        *
        * Receives one argument:
-       * - `rowData` The object with the properties related with
+       * - `model` The object with the properties related with
        *   the rendered item, contains:
-       *   - `rowData.index` The index of the item.
-       *   - `rowData.item` The item.
-       *   - `rowData.expanded` Sublevel toggle state.
-       *   - `rowData.level` Level of the tree represented with a horizontal offset of the toggle button.
-       *   - `rowData.selected` Selected state.
+       *   - `model.index` The index of the item.
+       *   - `model.item` The item.
+       *   - `model.expanded` Sublevel toggle state.
+       *   - `model.level` Level of the tree represented with a horizontal offset of the toggle button.
+       *   - `model.selected` Selected state.
+       *
+       * @type {GridDragAndDropFilter | null | undefined}
        */
       dropFilter: Function,
 
+      /** @private */
       __dndAutoScrollThreshold: {
         value: 50
       }
@@ -83,6 +91,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     ];
   }
 
+  /** @protected */
   ready() {
     super.ready();
     this.$.table.addEventListener('dragstart', this._onDragStart.bind(this));
@@ -99,6 +108,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
 
   }
 
+  /** @private */
   _onDragStart(e) {
     if (this.rowsDraggable) {
       let row = e.target;
@@ -168,6 +178,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     }
   }
 
+  /** @private */
   _onDragEnd(e) {
     this._toggleAttribute('dragging-rows', false, this);
     e.stopPropagation();
@@ -176,11 +187,13 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     this.dispatchEvent(event);
   }
 
+  /** @private */
   _onDragLeave(e) {
     e.stopPropagation();
     this._clearDragStyles();
   }
 
+  /** @private */
   _onDragOver(e) {
 
     if (this.dropMode) {
@@ -250,6 +263,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     }
   }
 
+  /** @private */
   __dndAutoScroll(clientY) {
     if (this.__dndAutoScrolling) {
       return true;
@@ -281,6 +295,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     }
   }
 
+  /** @private */
   __getViewportRows() {
     const headerBottom = this.$.header.getBoundingClientRect().bottom;
     const footerTop = this.$.footer.getBoundingClientRect().top;
@@ -291,11 +306,13 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
       });
   }
 
+  /** @protected */
   _clearDragStyles() {
     this.removeAttribute('dragover');
     Array.from(this.$.items.children).forEach(row => row.removeAttribute('dragover'));
   }
 
+  /** @private */
   _onDrop(e) {
     if (this.dropMode) {
       e.stopPropagation();
@@ -324,6 +341,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     }
   }
 
+  /** @private */
   __formatDefaultTransferData(rows) {
     return rows
       .map(row => {
@@ -339,6 +357,7 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
       .join('\n');
   }
 
+  /** @private */
   _dragDropAccessChanged(rowsDraggable, dropMode, dragFilter, dropFilter) {
     this.filterDragAndDrop();
   }
@@ -357,9 +376,14 @@ export const DragAndDropMixin = superClass => class DragAndDropMixin extends sup
     );
   }
 
-  _filterDragAndDrop(row, rowData) {
-    const dragDisabled = !this.rowsDraggable || (this.dragFilter && !this.dragFilter(rowData));
-    const dropDisabled = !this.dropMode || (this.dropFilter && !this.dropFilter(rowData));
+  /**
+   * @param {!HTMLElement} row
+   * @param {!GridItemModel} model
+   * @protected
+   */
+  _filterDragAndDrop(row, model) {
+    const dragDisabled = !this.rowsDraggable || (this.dragFilter && !this.dragFilter(model));
+    const dropDisabled = !this.dropMode || (this.dropFilter && !this.dropFilter(model));
 
     const draggableElements = window.ShadyDOM
       ? [row]

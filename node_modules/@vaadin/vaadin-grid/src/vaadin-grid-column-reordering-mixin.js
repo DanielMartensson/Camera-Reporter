@@ -18,12 +18,15 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     return {
       /**
        * Set to true to allow column reordering.
+       * @attr {boolean} column-reordering-allowed
+       * @type {boolean}
        */
       columnReorderingAllowed: {
         type: Boolean,
         value: false
       },
 
+      /** @private */
       _orderBaseScope: {
         type: Number,
         value: 10000000
@@ -48,12 +51,14 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     this.addEventListener('contextmenu', this._onContextMenu.bind(this));
   }
 
+  /** @private */
   _onContextMenu(e) {
     if (this.hasAttribute('reordering')) {
       e.preventDefault();
     }
   }
 
+  /** @private */
   _onTouchStart(e) {
     // Touch event, delay activation by 100ms
     this._startTouchReorderTimeout = setTimeout(() => {
@@ -66,6 +71,7 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }, 100);
   }
 
+  /** @private */
   _onTouchMove(e) {
     if (this._draggedColumn) {
       e.preventDefault();
@@ -73,11 +79,13 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     clearTimeout(this._startTouchReorderTimeout);
   }
 
+  /** @private */
   _onTouchEnd() {
     clearTimeout(this._startTouchReorderTimeout);
     this._onTrackEnd();
   }
 
+  /** @private */
   _onTrackEvent(e) {
     if (e.detail.state === 'start') {
       const path = e.composedPath();
@@ -110,6 +118,7 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /** @private */
   _onTrackStart(e) {
     if (!this.columnReorderingAllowed) {
       return;
@@ -141,6 +150,7 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     this._autoScroller();
   }
 
+  /** @private */
   _onTrack(e) {
     if (!this._draggedColumn) {
       // Reordering didn’t start. Skip this event.
@@ -162,6 +172,7 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     this._lastDragClientX = e.detail.x;
   }
 
+  /** @private */
   _onTrackEnd() {
     if (!this._draggedColumn) {
       // Reordering didn’t start. Skip this event.
@@ -180,12 +191,22 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }}));
   }
 
+  /**
+   * @return {!Array<!GridColumnElement>}
+   * @protected
+   */
   _getColumnsInOrder() {
     return this._columnTree.slice(0).pop()
       .filter(c => !c.hidden)
       .sort((b, a) => (b._order - a._order));
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @return {HTMLElement | undefined}
+   * @protected
+   */
   _cellFromPoint(x, y) {
     x = x || 0;
     y = y || 0;
@@ -212,6 +233,11 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /**
+   * @param {number} eventClientX
+   * @param {number} eventClientY
+   * @protected
+   */
   _updateGhostPosition(eventClientX, eventClientY) {
     const ghostRect = this._reorderGhost.getBoundingClientRect();
     // // This is where we want to position the ghost
@@ -226,6 +252,11 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     this._reorderGhost.style.transform = `translate(${this._reorderGhost._left}px, ${this._reorderGhost._top}px)`;
   }
 
+  /**
+   * @param {!Element} e
+   * @return {string}
+   * @protected
+   */
   _getInnerText(e) {
     if (e.localName) {
       // Custom implementation needed since IE11 doesn't respect the spec in case of hidden elements
@@ -239,6 +270,11 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /**
+   * @param {!HTMLElement} cell
+   * @return {!HTMLElement}
+   * @protected
+   */
   _updateGhost(cell) {
     const ghost = this._reorderGhost;
     ghost.textContent = this._getInnerText(cell._content);
@@ -248,6 +284,7 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     return ghost;
   }
 
+  /** @private */
   _updateOrders(columnTree, splices) {
     if (columnTree === undefined || splices === undefined) {
       return;
@@ -259,12 +296,18 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     columnTree[0].forEach((column, index) => column._order = (index + 1) * this._orderBaseScope);
   }
 
+  /**
+   * @param {!GridColumnElement} column
+   * @param {string} status
+   * @protected
+   */
   _setSiblingsReorderStatus(column, status) {
     Array.from(column.parentNode.children)
       .filter(child => /column/.test(child.localName) && this._isSwapAllowed(child, column))
       .forEach(sibling => sibling._reorderStatus = status);
   }
 
+  /** @protected */
   _autoScroller() {
     if (this._lastDragClientX) {
       const rightDiff = this._lastDragClientX - this.getBoundingClientRect().right + 50;
@@ -283,6 +326,12 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /**
+   * @param {GridColumnElement | undefined} column1
+   * @param {GridColumnElement | undefined} column2
+   * @return {boolean | undefined}
+   * @protected
+   */
   _isSwapAllowed(column1, column2) {
     if (column1 && column2) {
       const differentColumns = column1 !== column2;
@@ -292,6 +341,12 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /**
+   * @param {!GridColumnElement} targetColumn
+   * @param {number} clientX
+   * @return {boolean}
+   * @protected
+   */
   _isSwappableByPosition(targetColumn, clientX) {
     const targetCell =
       Array.from(this.$.header.querySelectorAll('tr:not([hidden]) [part~="cell"]')).filter(cell => targetColumn.contains(cell._column))[0];
@@ -304,6 +359,11 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     }
   }
 
+  /**
+   * @param {!GridColumnElement} column1
+   * @param {!GridColumnElement} column2
+   * @protected
+   */
   _swapColumnOrders(column1, column2) {
     const _order = column1._order;
     column1._order = column2._order;
@@ -312,6 +372,12 @@ export const ColumnReorderingMixin = superClass => class ColumnReorderingMixin e
     this._updateFirstAndLastColumn();
   }
 
+  /**
+   * @param {HTMLElement | undefined} targetCell
+   * @param {GridColumnElement} draggedColumn
+   * @return {GridColumnElement | undefined}
+   * @protected
+   */
   _getTargetColumn(targetCell, draggedColumn) {
     if (targetCell && draggedColumn) {
       let candidate = targetCell._column;

@@ -30,9 +30,8 @@ import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-res
 import { IronScrollTargetBehavior } from '@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
 import { animationFrame, idlePeriod, microTask } from '@polymer/polymer/lib/utils/async.js';
 import { Class } from '@polymer/polymer/lib/legacy/class.js';
-import { flush, enqueueDebouncer } from '@polymer/polymer/lib/utils/flush.js';
-import { flush as flush$0 } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
+import { flush } from '@polymer/polymer/lib/utils/flush.js';
+import { Debouncer, enqueueDebouncer } from '@polymer/polymer/lib/utils/debounce.js';
 var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
 var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
 var DEFAULT_PHYSICAL_COUNT = 3;
@@ -40,6 +39,9 @@ var ANIMATION_FRAME = animationFrame;
 var IDLE_TIME = idlePeriod;
 var MICRO_TASK = microTask;
 
+/**
+ * @constructor
+ */
 export const PolymerIronList = Class({
 
   behaviors: [
@@ -637,7 +639,7 @@ export const PolymerIronList = Class({
   _updateMetrics: function(itemSet) {
     // Make sure we distributed all the physical items
     // so we can measure them.
-    flush ? flush() : flush$0();
+    flush();
 
     var newPhysicalSize = 0;
     var oldPhysicalSize = 0;
@@ -752,7 +754,7 @@ export const PolymerIronList = Class({
     if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
       return;
     }
-    flush ? flush() : flush$0();
+    flush();
     // Items should have been rendered prior scrolling to an index.
     if (this._physicalCount === 0) {
       return;

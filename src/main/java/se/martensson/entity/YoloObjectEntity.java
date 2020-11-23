@@ -39,15 +39,12 @@ public class YoloObjectEntity {
 	
 	private Boolean active;
 	
-	@DecimalMax(value = "1.0", message = "1.0 is maximum")
-	@NotNull
-	private BigDecimal threshold;
+	private Boolean messageHasBeenSent;
 	
-	@ManyToOne
 	@NotNull
-	@NotEmpty
-    private ObjectNameEntity objectName; // This is the selection box
+    private String objectName; 
 	
+	@NotNull
 	private String message;
 	
 }

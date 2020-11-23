@@ -12,6 +12,7 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
     return {
       /**
        * An array that contains the selected items.
+       * @type {Array<GridItem>}
        */
       selectedItems: {
         type: Object,
@@ -27,6 +28,11 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
     ];
   }
 
+  /**
+   * @param {!GridItem} item
+   * @return {boolean}
+   * @protected
+   */
   _isSelected(item) {
     return this.selectedItems && this._getItemIndexInArray(item, this.selectedItems) > -1;
   }
@@ -35,7 +41,7 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
    * Selects the given item.
    *
    * @method selectItem
-   * @param {Object} item The item object
+   * @param {!GridItem} item The item object
    */
   selectItem(item) {
     if (!this._isSelected(item)) {
@@ -47,7 +53,7 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
    * Deselects the given item if it is already selected.
    *
    * @method deselect
-   * @param {Object} item The item object
+   * @param {!GridItem} item The item object
    */
   deselectItem(item) {
     const index = this._getItemIndexInArray(item, this.selectedItems);
@@ -60,7 +66,8 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
    * Toggles the selected state of the given item.
    *
    * @method toggle
-   * @param {Object} item The item object
+   * @param {!GridItem} item The item object
+   * @protected
    */
   _toggleItem(item) {
     const index = this._getItemIndexInArray(item, this.selectedItems);
@@ -71,6 +78,7 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
     }
   }
 
+  /** @private */
   _selectedItemsChanged(e) {
     if (this.$.items.children.length && (e.path === 'selectedItems' || e.path === 'selectedItems.splices')) {
       Array.from(this.$.items.children).forEach(row => {
@@ -79,6 +87,7 @@ export const SelectionMixin = superClass => class SelectionMixin extends superCl
     }
   }
 
+  /** @private */
   _selectedInstanceChangedCallback(instance, value) {
     if (super._selectedInstanceChangedCallback) {
       super._selectedInstanceChangedCallback(instance, value);

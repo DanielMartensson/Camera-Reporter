@@ -15,6 +15,7 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     return {
       /**
        * An array containing references to items with open row details.
+       * @type {Array<GridItem> | null | undefined}
        */
       detailsOpenedItems: {
         type: Array,
@@ -23,6 +24,10 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
         }
       },
 
+      /**
+       * @type {HTMLTemplateElement}
+       * @protected
+       */
       _rowDetailsTemplate: Object,
 
       /**
@@ -31,13 +36,19 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
        *
        * - `root` The row details content DOM element. Append your content to it.
        * - `grid` The `<vaadin-grid>` element.
-       * - `rowData` The object with the properties related with
+       * - `model` The object with the properties related with
        *   the rendered item, contains:
-       *   - `rowData.index` The index of the item.
-       *   - `rowData.item` The item.
+       *   - `model.index` The index of the item.
+       *   - `model.item` The item.
+       *
+       * @type {GridRowDetailsRenderer | null | undefined}
        */
       rowDetailsRenderer: Function,
 
+      /**
+       * @type {!Array<!HTMLElement> | undefined}
+       * @protected
+       */
       _detailsCells: {
         type: Array,
       }
@@ -51,6 +62,7 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     ];
   }
 
+  /** @private */
   _rowDetailsTemplateOrRendererChanged(rowDetailsTemplate, rowDetailsRenderer) {
     if (rowDetailsTemplate && rowDetailsRenderer) {
       throw new Error('You should only use either a renderer or a template for row details');
@@ -83,6 +95,7 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     }
   }
 
+  /** @private */
   _detailsOpenedItemsChanged(changeRecord, rowDetailsTemplate, rowDetailsRenderer) {
     if (changeRecord.path === 'detailsOpenedItems.length' || !changeRecord.value) {
       // Let’s avoid duplicate work of both “.splices” and “.length” updates.
@@ -95,6 +108,10 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     });
   }
 
+  /**
+   * @param {!HTMLElement} cell
+   * @protected
+   */
   _configureDetailsCell(cell) {
     cell.setAttribute('part', 'cell details-cell');
     // Freeze the details cell, so that it does not scroll horizontally
@@ -102,6 +119,11 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     this._toggleAttribute('frozen', true, cell);
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {!GridItem} item
+   * @protected
+   */
   _toggleDetailsCell(row, item) {
     const cell = row.querySelector('[part~="details-cell"]');
     if (!cell) {
@@ -138,18 +160,25 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     }
   }
 
+  /** @protected */
   _updateDetailsCellHeights() {
     Array.from(this.$.items.querySelectorAll('[part~="details-cell"]:not([hidden])')).forEach(cell => {
       cell.parentElement.style.setProperty('padding-bottom', `${cell.offsetHeight}px`);
     });
   }
 
+  /**
+   * @param {!GridItem} item
+   * @return {boolean}
+   * @protected
+   */
   _isDetailsOpened(item) {
     return this.detailsOpenedItems && this._getItemIndexInArray(item, this.detailsOpenedItems) !== -1;
   }
 
   /**
    * Open the details row of a given item.
+   * @param {!GridItem} item
    */
   openItemDetails(item) {
     if (!this._isDetailsOpened(item)) {
@@ -159,6 +188,7 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
 
   /**
    * Close the details row of a given item.
+   * @param {!GridItem} item
    */
   closeItemDetails(item) {
     if (this._isDetailsOpened(item)) {
@@ -166,6 +196,7 @@ export const RowDetailsMixin = superClass => class RowDetailsMixin extends super
     }
   }
 
+  /** @private */
   _detailsOpenedInstanceChangedCallback(instance, value) {
     if (super._detailsOpenedInstanceChangedCallback) {
       super._detailsOpenedInstanceChangedCallback(instance, value);

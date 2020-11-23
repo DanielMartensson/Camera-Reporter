@@ -14,11 +14,13 @@ import { PolymerElement } from '@polymer/polymer/polymer-element.js';
  */
 export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin extends superClass {
 
+  /** @protected */
   ready() {
     super.ready();
     this._addNodeObserver();
   }
 
+  /** @private */
   _hasColumnGroups(columns) {
     for (let i = 0; i < columns.length; i++) {
       if (columns[i].localName === 'vaadin-grid-column-group') {
@@ -29,10 +31,16 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     return false;
   }
 
+  /**
+   * @param {!GridColumnGroupElement} el
+   * @return {!Array<!GridColumnElement>}
+   * @protected
+   */
   _getChildColumns(el) {
     return FlattenedNodesObserver.getFlattenedNodes(el).filter(this._isColumnElement);
   }
 
+  /** @private */
   _flattenColumnGroups(columns) {
     return columns.map(col => {
       if (col.localName === 'vaadin-grid-column-group') {
@@ -45,6 +53,7 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     }, []);
   }
 
+  /** @private */
   _getColumnTree() {
     var rootColumns = FlattenedNodesObserver.getFlattenedNodes(this).filter(this._isColumnElement);
     var _columnTree = [];
@@ -60,6 +69,7 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     return _columnTree;
   }
 
+  /** @protected */
   _updateColumnTree() {
     var columnTree = this._getColumnTree();
     if (!this._arrayEquals(columnTree, this._columnTree)) {
@@ -67,6 +77,7 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     }
   }
 
+  /** @private */
   _addNodeObserver() {
     this._observer = new FlattenedNodesObserver(this, info => {
 
@@ -89,6 +100,7 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     });
   }
 
+  /** @private */
   _arrayEquals(arr1, arr2) {
     if (!arr1 || !arr2 || arr1.length != arr2.length) {
       return false;
@@ -108,6 +120,7 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     return true;
   }
 
+  /** @protected */
   _checkImports() {
     [
       'vaadin-grid-column-group',
@@ -125,10 +138,15 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
     });
   }
 
+  /** @protected */
   _updateFirstAndLastColumn() {
     Array.from(this.shadowRoot.querySelectorAll('tr')).forEach(row => this._updateFirstAndLastColumnForRow(row));
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @protected
+   */
   _updateFirstAndLastColumnForRow(row) {
     Array.from(row.querySelectorAll('[part~="cell"]:not([part~="details-cell"])'))
       .sort((a, b) => {
@@ -139,6 +157,11 @@ export const DynamicColumnsMixin = superClass => class DynamicColumnsMixin exten
       });
   }
 
+  /**
+   * @param {!Node} node
+   * @return {boolean}
+   * @protected
+   */
   _isColumnElement(node) {
     return node.nodeType === Node.ELEMENT_NODE && /\bcolumn\b/.test(node.localName);
   }

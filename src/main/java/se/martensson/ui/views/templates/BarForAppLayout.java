@@ -7,9 +7,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
 import lombok.Data;
-import se.martensson.ui.views.ConfigurationView;
-import se.martensson.ui.views.CreateOrLoadView;
-import se.martensson.ui.views.RunView;
+import se.martensson.ui.views.FileUploaderView;
+import se.martensson.ui.views.MailConfigurationView;
+import se.martensson.ui.views.YoloView;
 
 @Data
 public class BarForAppLayout {
@@ -30,17 +30,17 @@ public class BarForAppLayout {
         // Tabs
         Tab runTab = new Tab("Run");
         runTab.getElement().addEventListener("click", e -> {
-        	UI.getCurrent().navigate(RunView.class);
+        	UI.getCurrent().navigate(YoloView.class);
         });
-        Tab configurationTab = new Tab("Configuration");
-        configurationTab.getElement().addEventListener("click", e -> {
-        	UI.getCurrent().navigate(ConfigurationView.class);
+        Tab fileUploaderTab = new Tab("File uploader");
+        fileUploaderTab.getElement().addEventListener("click", e -> {
+        	UI.getCurrent().navigate(FileUploaderView.class);
         });
-        Tab createOrLoadTab = new Tab("Create or Load");
+        Tab createOrLoadTab = new Tab("Mail configuration");
         createOrLoadTab.getElement().addEventListener("click", e -> {
-        	UI.getCurrent().navigate(CreateOrLoadView.class);
+        	UI.getCurrent().navigate(MailConfigurationView.class);
         });
-        tabs = new Tabs(runTab, configurationTab, createOrLoadTab);
+        tabs = new Tabs(runTab, fileUploaderTab, createOrLoadTab);
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
 	}
 

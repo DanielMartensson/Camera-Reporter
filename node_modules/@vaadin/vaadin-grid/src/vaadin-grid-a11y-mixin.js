@@ -13,14 +13,17 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     ];
   }
 
+  /** @private */
   _a11yGetHeaderRowCount(_columnTree) {
     return _columnTree.filter(level => level.some(col => col._headerTemplate || col.headerRenderer || col.path || col.header)).length;
   }
 
+  /** @private */
   _a11yGetFooterRowCount(_columnTree) {
     return _columnTree.filter(level => level.some(col => col._headerTemplate || col.headerRenderer)).length;
   }
 
+  /** @private */
   _a11yUpdateGridSize(size, _columnTree) {
     if (size === undefined || _columnTree === undefined) {
       return;
@@ -37,12 +40,14 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     this._a11yUpdateFooterRows();
   }
 
+  /** @protected */
   _a11yUpdateHeaderRows() {
     Array.from(this.$.header.children).forEach((headerRow, index) =>
       headerRow.setAttribute('aria-rowindex', index + 1)
     );
   }
 
+  /** @protected */
   _a11yUpdateFooterRows() {
     Array.from(this.$.footer.children).forEach((footerRow, index) =>
       footerRow.setAttribute(
@@ -52,10 +57,20 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     );
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {number} index
+   * @protected
+   */
   _a11yUpdateRowRowindex(row, index) {
     row.setAttribute('aria-rowindex', index + this._a11yGetHeaderRowCount(this._columnTree) + 1);
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {boolean} selected
+   * @protected
+   */
   _a11yUpdateRowSelected(row, selected) {
     // Jaws reads selection only for rows, NVDA only for cells
     row.setAttribute('aria-selected', Boolean(selected));
@@ -64,10 +79,20 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     );
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {number} level
+   * @protected
+   */
   _a11yUpdateRowLevel(row, level) {
     row.setAttribute('aria-level', level + 1);
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {boolean} detailsOpened
+   * @protected
+   */
   _a11yUpdateRowDetailsOpened(row, detailsOpened) {
     Array.from(row.children).forEach(cell => {
       if (typeof detailsOpened === 'boolean') {
@@ -80,6 +105,11 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     });
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {!HTMLElement} detailsCell
+   * @protected
+   */
   _a11ySetRowDetailsCell(row, detailsCell) {
     Array.from(row.children).forEach(cell => {
       if (cell !== detailsCell) {
@@ -88,10 +118,16 @@ export const A11yMixin = superClass => class A11yMixin extends superClass {
     });
   }
 
+  /**
+   * @param {!HTMLElement} row
+   * @param {number} colspan
+   * @protected
+   */
   _a11yUpdateCellColspan(cell, colspan) {
     cell.setAttribute('aria-colspan', Number(colspan));
   }
 
+  /** @protected */
   _a11yUpdateSorters() {
     Array.from(this.querySelectorAll('vaadin-grid-sorter')).forEach(sorter => {
       let cellContent = sorter.parentNode;
