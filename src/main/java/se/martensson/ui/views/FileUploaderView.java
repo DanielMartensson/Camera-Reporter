@@ -189,7 +189,6 @@ public class FileUploaderView extends AppLayout {
 	}
 	
 	private void makeAllRunable() {
-		
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder();
 		    processBuilder.directory(new File("Darknet"));
