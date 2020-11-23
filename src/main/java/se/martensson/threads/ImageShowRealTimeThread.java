@@ -104,7 +104,7 @@ public class ImageShowRealTimeThread extends Thread {
 			String darkPath = darknet.getValue().getFilePath().replace("Darknet/", "./");
 			String configurationFlag = configuration.getValue().getFilePath().replace("Darknet/", "");
 			String weightsFlag = weights.getValue().getFilePath().replace("Darknet/", "");
-			String imageFlag = "data/dog.jpg";
+			String imageFlag = "data/camera.png";
 			String thresValue =  thresholds.getValue();
 
 			// Process builder
