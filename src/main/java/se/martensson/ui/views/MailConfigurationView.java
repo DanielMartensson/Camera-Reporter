@@ -9,12 +9,7 @@ import se.martensson.entity.YoloObjectEntity;
 import se.martensson.service.YoloObjectService;
 import se.martensson.ui.views.templates.BarForAppLayout;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.TextRenderer;
-import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
-import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
-import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 /**
  * The main view contains a button and a click listener.

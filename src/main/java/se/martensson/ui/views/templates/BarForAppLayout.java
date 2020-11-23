@@ -7,6 +7,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
 import lombok.Data;
+import se.martensson.security.SecurityConfig;
 import se.martensson.ui.views.FileUploaderView;
 import se.martensson.ui.views.MailConfigurationView;
 import se.martensson.ui.views.YoloView;
@@ -20,7 +21,7 @@ public class BarForAppLayout {
 
 	public BarForAppLayout() {
 		// Bar image
-		img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
+		img = new Image("images/logo.png", "Camera Reporter Logo");
         img.setHeight("44px");
         
         // Drawer
@@ -40,7 +41,11 @@ public class BarForAppLayout {
         createOrLoadTab.getElement().addEventListener("click", e -> {
         	UI.getCurrent().navigate(MailConfigurationView.class);
         });
-        tabs = new Tabs(runTab, fileUploaderTab, createOrLoadTab);
+        Tab logoutTab = new Tab("Logout");
+        logoutTab.getElement().addEventListener("click", e -> {
+        	UI.getCurrent().getPage().setLocation(SecurityConfig.LOGOUT);
+        });
+        tabs = new Tabs(runTab, fileUploaderTab, createOrLoadTab, logoutTab);
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
 	}
 

@@ -1,9 +1,7 @@
 package se.martensson.threads;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,6 +20,7 @@ import javax.imageio.ImageIO;
 
 import com.github.sarxos.webcam.Webcam;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.server.StreamResource;
@@ -31,6 +29,7 @@ import lombok.Setter;
 import se.martensson.component.SendMail;
 import se.martensson.entity.YoloObjectEntity;
 import se.martensson.service.YoloObjectService;
+import se.martensson.ui.views.YoloView;
 import se.martensson.ui.views.templates.ListUploadedFiles;
 
 public class ImageShowRealTimeThread extends Thread {
@@ -39,7 +38,6 @@ public class ImageShowRealTimeThread extends Thread {
 	private AtomicBoolean startStopThread;
 	@Setter
 	private Webcam selectedWebcam;
-	@Setter
 	private Image realTimeCameraImage;
 	private Select<ListUploadedFiles> darknet;
 	private Select<ListUploadedFiles> configuration;
@@ -47,16 +45,11 @@ public class ImageShowRealTimeThread extends Thread {
 	private Select<String> thresholds;
 	private YoloObjectService yoloObjectService;
 	private SendMail sendMail;
+	private Button startStopYOLO;
+	private Select<String> cameras;
 
-	public ImageShowRealTimeThread(AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail) {
-		this.startStopThread = startStopThread;
-		this.ui = ui;
-		this.darknet = darknet;
-		this.configuration = configuration;
-		this.weights = weights;
-		this.thresholds = thresholds;
-		this.yoloObjectService = yoloObjectService;
-		this.sendMail = sendMail;
+	public ImageShowRealTimeThread() {
+		
 	}
 
 	@Override
@@ -82,7 +75,10 @@ public class ImageShowRealTimeThread extends Thread {
 						}
 						return null;
 					});
-					ui.access(() -> realTimeCameraImage.setSrc(resource));
+					ui.access(() -> {
+						realTimeCameraImage.setSrc(resource);
+						enableDisableSelectAndButton();
+					});
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -197,6 +193,42 @@ public class ImageShowRealTimeThread extends Thread {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage) {
+		this.startStopYOLO = startStopYOLO;
+		this.startStopThread = startStopThread;
+		this.ui = ui;
+		this.darknet = darknet;
+		this.configuration = configuration;
+		this.weights = weights;
+		this.thresholds = thresholds;
+		this.yoloObjectService = yoloObjectService;
+		this.sendMail = sendMail;
+		this.cameras = cameras;
+		this.selectedWebcam = selectedWebcam;
+		this.realTimeCameraImage = realTimeCameraImage;
+	}
+	
+	private void enableDisableSelectAndButton() {
+		if (startStopThread.get() == true) {
+			startStopYOLO.setText(YoloView.STOP);
+			startStopYOLO.setEnabled(true);
+			startStopThread.set(true); // Start YOLO program here
+			cameras.setEnabled(false);
+			darknet.setEnabled(false);
+			configuration.setEnabled(false);
+			weights.setEnabled(false);
+			thresholds.setEnabled(false);
+		} else {
+			startStopYOLO.setText(YoloView.START);
+			startStopThread.set(false); // Stop YOLO program here
+			cameras.setEnabled(true);
+			darknet.setEnabled(true);
+			configuration.setEnabled(true);
+			weights.setEnabled(true);
+			thresholds.setEnabled(true);
 		}
 	}
 
