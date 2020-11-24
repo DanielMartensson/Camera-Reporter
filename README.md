@@ -16,7 +16,7 @@ Use this software if you want handel intelligent monitoring for security.
 
 # Pictures
 
-My desktop with a poor old Dell Precision M6400 from 2007. Yes, it works but it's about 2 seconds delay per image for `Yolov2-tiny` model.
+My desktop with a poor old Dell Precision M6400 from 2007. Yes, it works but it's about 2 seconds delay per image for `Yolov4-tiny` model.
 
 ![a](https://raw.githubusercontent.com/DanielMartensson/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/master/Pictures/Screenshot.png)
 

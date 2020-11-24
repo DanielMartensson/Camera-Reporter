@@ -70,10 +70,10 @@ public class YoloView extends AppLayout {
 
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
-		Select<String> pictureSize = new Select<String>(new String[] {"608x608", "512x512", "416x416", "320x320", "Camera Size"});
-		pictureSize.setLabel("Picture size");
+		Select<String> pictureSize = new Select<String>(new String[] {"608x608", "512x512", "416x416", "320x320", "Real Video Size"});
+		pictureSize.setLabel("Video Size Stream");
 		setPictureSize(pictureSize, realTimeCameraImage);
-		realTimeCameraImage.setTitle("Real Time Camera");
+		realTimeCameraImage.setTitle("Real Time Video");
 
 		// Create selectors for Darknet
 		Select<ListUploadedFiles> darknet = new Select<ListUploadedFiles>();
@@ -125,12 +125,12 @@ public class YoloView extends AppLayout {
 	}
 
 	private void setPictureSize(Select<String> pictureSize, Image realTimeCameraImage) {
-		pictureSize.setValue("Camera Size"); // Default value
+		pictureSize.setValue("Real Video Size"); // Default value
 		pictureSize.addValueChangeListener(e -> {
 			String size = e.getValue();
 			String[] height_width = size.split("x");
 			switch(size) {
-			case "Camera Size":
+			case "Real Video Size":
 				realTimeCameraImage.setSizeUndefined();
 				break;
 			default:
