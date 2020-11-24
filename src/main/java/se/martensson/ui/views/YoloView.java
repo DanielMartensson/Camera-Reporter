@@ -56,6 +56,7 @@ public class YoloView extends AppLayout {
 	private static ListUploadedFiles selectedData = null;
 	private static ListUploadedFiles selectedWeights = null;
 	private static String selectedThreshold = null;
+	private static String selectedPictureSize = null;
 
 	// This need to be a non-static field
 	private Button startStopYOLO = null;
@@ -69,8 +70,9 @@ public class YoloView extends AppLayout {
 
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
-		realTimeCameraImage.setWidth("1280px");
-		realTimeCameraImage.setHeight("720px");
+		Select<String> pictureSize = new Select<String>(new String[] {"608x608", "512x512", "416x416", "320x320", "Camera Size"});
+		pictureSize.setLabel("Picture size");
+		setPictureSize(pictureSize, realTimeCameraImage);
 		realTimeCameraImage.setTitle("Real Time Camera");
 
 		// Create selectors for Darknet
@@ -115,11 +117,34 @@ public class YoloView extends AppLayout {
 		
 		// Content
 		VerticalLayout layout = new VerticalLayout();
-		layout.add(new FormLayout(startStopYOLO, cameras, darknet, configuration, data, weights, thresholds));
+		layout.add(new FormLayout(startStopYOLO, cameras, darknet, configuration, data, weights, thresholds, pictureSize));
 		layout.add(realTimeCameraImage);
 		layout.setAlignItems(Alignment.CENTER);
 		setContent(layout);
 		
+	}
+
+	private void setPictureSize(Select<String> pictureSize, Image realTimeCameraImage) {
+		pictureSize.setValue("Camera Size"); // Default value
+		pictureSize.addValueChangeListener(e -> {
+			String size = e.getValue();
+			String[] height_width = size.split("x");
+			switch(size) {
+			case "Camera Size":
+				realTimeCameraImage.setSizeUndefined();
+				break;
+			default:
+				realTimeCameraImage.setWidth(height_width[1] + "px");
+				realTimeCameraImage.setHeight(height_width[0] + "px");
+				break;
+			}
+			selectedPictureSize = size;
+			
+		});
+		if(selectedPictureSize != null) {
+			pictureSize.setValue(selectedPictureSize);
+		}
+			
 	}
 
 	private void startStopYoloConfiguration() {
@@ -218,9 +243,6 @@ public class YoloView extends AppLayout {
 			}
 		}
 		cameras.setItems(webcamNames);
-		if(selectedCamera != null) {
-			cameras.setValue(selectedCamera);
-		}
 
 		// Add a listener for enabling the camera
 		cameras.addValueChangeListener(e -> {
@@ -231,6 +253,9 @@ public class YoloView extends AppLayout {
 				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
 			}
 		});
+		if(selectedCamera != null) {
+			cameras.setValue(selectedCamera);
+		}
 	}
 
 	/**
