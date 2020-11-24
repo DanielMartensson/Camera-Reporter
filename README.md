@@ -16,7 +16,7 @@ Use this software if you want handel intelligent monitoring for security.
 
 # Pictures
 
-My desktop with a poor old Dell Precision M6400 from 2007. Yes, it works but it's about 2 seconds delay per image.
+My desktop with a poor old Dell Precision M6400 from 2007. Yes, it works but it's about 2 seconds delay per image for `Yolov2-tiny` model.
 
 ![a](https://raw.githubusercontent.com/DanielMartensson/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/master/Pictures/Screenshot.png)
 
@@ -157,6 +157,6 @@ Now you can go to your web browser and type in the local IP address of the compu
 
 8. Upload Darknet files
 
-Go to https://github.com/AlexeyAB/darknet and download the sourcecode and follow the instructions how to compile under Linux. Then upload the `darknet`, `.data`, `.weights`, `.names` files to the `Darknet` folder inside this project. 
+Go to https://github.com/AlexeyAB/darknet and download the sourcecode and follow the instructions how to compile under Linux. Then upload the `darknet`, `.data`, `.cfg`, `.weights`, `.names` files etc. to the `Darknet` folder inside this project. 
 There is a `YOLO 4` already included so you can if you want just try this first and see if you get predictions before you doing it any more.
 Notice that this `darknet` file included in this project is compiled under Lubuntu Linux 18.04 on a Dell Precision M6400 computer. It has no `GPU`, `CUDA`, `OPENCV`. Just default settings. 

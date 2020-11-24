@@ -57,15 +57,19 @@ public class ImageShowRealTimeThread extends Thread {
 	public void run() {
 		while (true) {
 			while (startStopThread.get()) {
-				sleepThread();
-
-				// Try to take a snap short and convert it to bytes and then to a stream
-				// resource
+				/*
+				 * 1. Take a snap with camera
+				 * 2. Classify it
+				 * 3. Get the predicted objects
+				 * 4. Check the database if we need to send a mail
+				 */
 				try {
+					// Snap
 					BufferedImage cameraImage = selectedWebcam.getImage();
 					ByteArrayOutputStream byteImage = new ByteArrayOutputStream();
 					ImageIO.write(cameraImage, "png", byteImage);
 					byte[] streamBytes = byteImage.toByteArray();
+					// Classify
 					yoloDetection(streamBytes);
 					StreamResource resource = new StreamResource("predictions.jpg", () -> {
 						try {
@@ -85,7 +89,6 @@ public class ImageShowRealTimeThread extends Thread {
 					e.printStackTrace();
 				}
 			}
-			sleepThread();
 		}
 	}
 
@@ -111,6 +114,8 @@ public class ImageShowRealTimeThread extends Thread {
 			processBuilder.command(darkPath, "detector", "test", dataFlag, cfgFlag, weightsFlag, imageFlag, "-thresh", thresValue); // E.g ./darknet detector test ./cfg/coco.data ./cfg/yolov4.cfg ./weights/yolov4.weights ./data/dog.jpg -thresh 0.4
 			processBuilder.redirectErrorStream(true); // Important
 			Process process = processBuilder.start();
+			
+			// Collect the predicted objects
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String line;
 			boolean predictionsComesNow = false;
@@ -128,7 +133,7 @@ public class ImageShowRealTimeThread extends Thread {
 			}
 			process.waitFor();  
 			
-			// Read the objects and compare
+			// Check the predicted object if we need to send a mail
 			compareObjects(predictedObjects);
 			
 		} catch (IOException e) {
@@ -181,18 +186,6 @@ public class ImageShowRealTimeThread extends Thread {
 			}
 			ImageIO.write(mirror, "png", new File(picturePath)); 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * It's important to have a sleep time in thread, else the thread can freeze
-	 */
-	private void sleepThread() {
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
