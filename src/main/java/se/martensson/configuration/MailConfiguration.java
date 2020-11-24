@@ -22,7 +22,6 @@ public class MailConfiguration {
     @Value("${mail.password}")
     private String password;
 	
-	
 	@Bean
 	public JavaMailSender getJavaMailSender() {
 

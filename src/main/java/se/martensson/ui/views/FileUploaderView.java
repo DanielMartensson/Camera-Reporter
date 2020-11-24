@@ -17,6 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -128,9 +129,12 @@ public class FileUploaderView extends AppLayout {
 		});
 		
 		// Layout
+		HorizontalLayout firstRow = new HorizontalLayout(loadDarknetFileButton, loadWeightsButton);
+		HorizontalLayout secondRow = new HorizontalLayout(loadConfigurationButton, loadDataButton);
 		VerticalLayout layout = new VerticalLayout();
-		FormLayout buttonForm = new FormLayout(loadDarknetFileButton, loadWeightsButton, loadConfigurationButton, loadDataButton, deleteFileButton);
-		layout.add(buttonForm);
+		VerticalLayout uploaders = new VerticalLayout(firstRow, secondRow);
+		layout.add(uploaders);
+		layout.add(deleteFileButton);
 		layout.add(terminal);
 		setContent(layout);
 		

@@ -41,6 +41,7 @@ public class ImageShowRealTimeThread extends Thread {
 	private Image realTimeCameraImage;
 	private Select<ListUploadedFiles> darknet;
 	private Select<ListUploadedFiles> configuration;
+	private Select<ListUploadedFiles> data;
 	private Select<ListUploadedFiles> weights;
 	private Select<String> thresholds;
 	private YoloObjectService yoloObjectService;
@@ -97,16 +98,17 @@ public class ImageShowRealTimeThread extends Thread {
 	private void callDarkNetToDoItsPrediction() {
 		try {
 			// Arguments
-			String darkPath = darknet.getValue().getFilePath().replace("Darknet/", "./");
-			String configurationFlag = configuration.getValue().getFilePath().replace("Darknet/", "");
-			String weightsFlag = weights.getValue().getFilePath().replace("Darknet/", "");
+			String darkPath = darknet.getValue().getFilePath().replace("Darknet", "."); // E.g ./darknet
+			String dataFlag = data.getValue().getFilePath().replace("Darknet", "."); // E.g ./cfg/coco.data
+			String weightsFlag = weights.getValue().getFilePath().replace("Darknet", "."); // E.g ./weights/yolov4.weights
+			String cfgFlag = configuration.getValue().getFilePath().replace("Darknet", "."); // E.g ./cfg/yolov4.cfg
 			String imageFlag = "data/camera.png";
 			String thresValue =  thresholds.getValue();
 
 			// Process builder
 			ProcessBuilder processBuilder = new ProcessBuilder();
 			processBuilder.directory(new File("Darknet")); // Important
-			processBuilder.command(darkPath, "detect", configurationFlag, weightsFlag, imageFlag, "-thresh", thresValue);
+			processBuilder.command(darkPath, "detector", "test", dataFlag, cfgFlag, weightsFlag, imageFlag, "-thresh", thresValue); // E.g ./darknet detector test ./cfg/coco.data ./cfg/yolov4.cfg ./weights/yolov4.weights ./data/dog.jpg -thresh 0.4
 			processBuilder.redirectErrorStream(true); // Important
 			Process process = processBuilder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -115,7 +117,7 @@ public class ImageShowRealTimeThread extends Thread {
 			ArrayList<String> predictedObjects = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				// Collect objects if we have seen the "Predicted in" text
-				if(predictionsComesNow) {
+				if(predictionsComesNow && line.contains(":")) {
 					predictedObjects.add(line.split(":")[0]); // Always split on ":"
 				}
 				
@@ -196,12 +198,13 @@ public class ImageShowRealTimeThread extends Thread {
 		}
 	}
 
-	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage) {
+	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage) {
 		this.startStopYOLO = startStopYOLO;
 		this.startStopThread = startStopThread;
 		this.ui = ui;
 		this.darknet = darknet;
 		this.configuration = configuration;
+		this.data = data;
 		this.weights = weights;
 		this.thresholds = thresholds;
 		this.yoloObjectService = yoloObjectService;
@@ -219,6 +222,7 @@ public class ImageShowRealTimeThread extends Thread {
 			cameras.setEnabled(false);
 			darknet.setEnabled(false);
 			configuration.setEnabled(false);
+			data.setEnabled(false);
 			weights.setEnabled(false);
 			thresholds.setEnabled(false);
 		} else {
@@ -227,6 +231,7 @@ public class ImageShowRealTimeThread extends Thread {
 			cameras.setEnabled(true);
 			darknet.setEnabled(true);
 			configuration.setEnabled(true);
+			data.setEnabled(true);
 			weights.setEnabled(true);
 			thresholds.setEnabled(true);
 		}

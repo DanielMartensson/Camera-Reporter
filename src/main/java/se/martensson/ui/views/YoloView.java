@@ -53,6 +53,7 @@ public class YoloView extends AppLayout {
 	private static String selectedCamera = null;
 	private static ListUploadedFiles selectedDarknet = null;
 	private static ListUploadedFiles selectedConfiguration = null;
+	private static ListUploadedFiles selectedData = null;
 	private static ListUploadedFiles selectedWeights = null;
 	private static String selectedThreshold = null;
 
@@ -77,9 +78,11 @@ public class YoloView extends AppLayout {
 		darknet.setLabel("Darknet");
 		Select<ListUploadedFiles> configuration = new Select<ListUploadedFiles>();
 		configuration.setLabel("Configuration");
+		Select<ListUploadedFiles> data = new Select<ListUploadedFiles>();
+		data.setLabel("Data");
 		Select<ListUploadedFiles> weights = new Select<ListUploadedFiles>();
 		weights.setLabel("Weights");
-		scanFiles(darknet, selectedDarknet, configuration, selectedConfiguration, weights, selectedWeights);
+		scanFiles(darknet, selectedDarknet, configuration, selectedConfiguration, data, selectedData, weights, selectedWeights);
 		Select<String> thresholds = new Select<String>(new String[] { "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"});
 		thresholds.setLabel("Thresholds");
 		setPastThresholdValue(thresholds);
@@ -97,22 +100,22 @@ public class YoloView extends AppLayout {
 		// Create the drop down button for the camera
 		Select<String> cameras = new Select<String>();
 		cameras.setLabel("Camera");
-		darknet.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, weights, thresholds));
-		configuration.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, weights, thresholds));
-		weights.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, weights, thresholds));
-		thresholds.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, weights, thresholds));
-		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, weights, thresholds);
-		enableCameraDropDownButton(cameras, darknet, configuration, weights, thresholds);
+		darknet.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
+		data.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
+		weights.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
+		thresholds.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
+		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
+		enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds);
 		
 		// Set the components to the thread
-		imageShowRealTimeThread.setComponentsToThread(startStopYOLO, startStopThread, UI.getCurrent(), darknet, configuration, weights, thresholds, yoloObjectService, sendMail, cameras, selectedWebcam, realTimeCameraImage);
+		imageShowRealTimeThread.setComponentsToThread(startStopYOLO, startStopThread, UI.getCurrent(), darknet, configuration, data, weights, thresholds, yoloObjectService, sendMail, cameras, selectedWebcam, realTimeCameraImage);
 		if(!imageShowRealTimeThread.isAlive())
 			imageShowRealTimeThread.start();
 
 		
 		// Content
 		VerticalLayout layout = new VerticalLayout();
-		layout.add(new FormLayout(startStopYOLO, cameras, darknet, configuration, weights, thresholds));
+		layout.add(new FormLayout(startStopYOLO, cameras, darknet, configuration, data, weights, thresholds));
 		layout.add(realTimeCameraImage);
 		layout.setAlignItems(Alignment.CENTER);
 		setContent(layout);
@@ -143,26 +146,29 @@ public class YoloView extends AppLayout {
 			thresholds.setValue(selectedThreshold);
 	}
 
-	private void enableCameraDropDownButton(Select<String> cameras, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds) {
-		if (darknet.getValue() != null && configuration.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
+	private void enableCameraDropDownButton(Select<String> cameras, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
+		if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
 			cameras.setEnabled(true);
 		} else {
 			cameras.setEnabled(false);
 		}
 		selectedDarknet = darknet.getValue();
 		selectedConfiguration = configuration.getValue();
+		selectedData = data.getValue();
 		selectedWeights = weights.getValue();
 	}
 
-	private void scanFiles(Select<ListUploadedFiles> darknet, ListUploadedFiles selectedDarknet, Select<ListUploadedFiles> configuration, ListUploadedFiles selectedConfiguration, Select<ListUploadedFiles> weights, ListUploadedFiles selectedWeights) {
+	private void scanFiles(Select<ListUploadedFiles> darknet, ListUploadedFiles selectedDarknet, Select<ListUploadedFiles> configuration, ListUploadedFiles selectedConfiguration, Select<ListUploadedFiles> data, ListUploadedFiles selectedData, Select<ListUploadedFiles> weights, ListUploadedFiles selectedWeights) {
 		// Get all the current files
 		File[] configurationFiles = new File("Darknet/" + FileUploaderView.CFG).listFiles((File pathname) -> pathname.getName().endsWith(".cfg"));
-		File[] yoloFiles = new File("Darknet/").listFiles((File pathname) -> !pathname.getName().contains(".") && pathname.isFile());
+		File[] dataFiles = new File("Darknet/" + FileUploaderView.CFG).listFiles((File pathname) -> pathname.getName().endsWith(".data"));
+		File[] darknetFiles = new File("Darknet/").listFiles((File pathname) -> !pathname.getName().contains(".") && pathname.isFile());
 		File[] weightsFiles = new File("Darknet/" + FileUploaderView.WEIGHTS).listFiles((File pathname) -> pathname.getName().endsWith(".weights"));
 
 		// Fill them
-		fillSelecter(darknet, yoloFiles, selectedDarknet);
+		fillSelecter(darknet, darknetFiles, selectedDarknet);
 		fillSelecter(configuration, configurationFiles, selectedConfiguration);
+		fillSelecter(data, dataFiles, selectedData);
 		fillSelecter(weights, weightsFiles, selectedWeights);
 	}
 
@@ -194,11 +200,11 @@ public class YoloView extends AppLayout {
 	 * @param imageShowRealTimeThread
 	 * @param realTimeCameraImage
 	 * @param weights
-	 * @param configuration
+	 * @param data
 	 * @param darknet
 	 * @param thresholds
 	 */
-	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds) {
+	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
 		// Fill with camera names
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String[] webcamNames = new String[webcamsList.size()];
@@ -219,10 +225,10 @@ public class YoloView extends AppLayout {
 		// Add a listener for enabling the camera
 		cameras.addValueChangeListener(e -> {
 			if (selectedWebcam == null) {
-				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, weights, thresholds);
+				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
 			} else {
 				selectedWebcam.close();
-				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, weights, thresholds);
+				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
 			}
 		});
 	}
@@ -234,17 +240,17 @@ public class YoloView extends AppLayout {
 	 * @param imageShowRealTimeThread
 	 * @param realTimeCameraImage
 	 * @param weights
-	 * @param configuration
+	 * @param data
 	 * @param darknet
 	 * @param thresholds
 	 */
-	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> weights, Select<String> thresholds) {
+	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String selectedCameraName = cameras.getValue();
 		selectedCamera = cameras.getValue();
 		selectedWebcam = webcamsList.stream().filter(x -> selectedCameraName.equals(x.getName())).findFirst().get(); // This generates a new object of the web cam
 		try {
-			if (darknet.getValue() != null && configuration.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
+			if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
 				selectedWebcam.open();
 				startStopYOLO.setEnabled(true);
 				imageShowRealTimeThread.setSelectedWebcam(selectedWebcam);
