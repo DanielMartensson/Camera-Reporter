@@ -103,7 +103,39 @@ Create a Gmail account and go to `https://myaccount.google.com/security` and ena
 Because `Camera-Reporter` uses `Java Mail` to logg into Gmail. This feature exist because if `Camera-Reporter` is on the fly over a
 night and something happens, then it will stop everything and send a message back to you.
 
-6. Download `Camera-Reporter`
+
+6. Create Ramdisk for `Darknet` folder
+
+We need to save our prediction pictures and camera pictures here on RAM memory so we won't harm the harddrive.
+Create a 200 megabyte Ramdisk for two pictures if you using `Yolo V4 Tiny`. When applied `Yolo V4 Tiny`, then you will have about 80 megabytes left.
+Every time you stard the prediction, then this `Camera-Reporter` will copy `Darknet` folder to `/mnt/ramdisk`
+
+Do the following:
+```
+sudo mkdir /mnt/ramdisk
+sudo mount -t tmpfs -o rw,size=200M tmpfs /mnt/ramdisk
+df -h
+```
+Add a Ramdisk automatically at startup
+Write
+```
+sudo nano /etc/fstab
+```
+
+Then paste this line at the bottom
+```
+tmpfs  /mnt/ramdisk  tmpfs  rw,size=200M  0   0
+```
+
+Now press `Ctrl> + X` and then press `y` and then press `Enter` to save the file.
+
+If you want to unmount `ramdisk` folder
+
+```
+sudo umount /mnt/ramdisk
+```
+
+7. Download `Camera-Reporter`
 
 Download the `Camera-Reporter` and change the `application.properties` in the `/src/main/resources` folder.
 Here you can set the configuration for your database LAN address, user and password. You can also set a gmail address and its
@@ -147,7 +179,7 @@ spring.security.user.name=myUser
 spring.security.user.password=myPassword
 ```
 
-7. Run the project
+8. Run the project
 
 Stand inside of the folder `Camera-Reporter` and write inside your terminal
 ```
@@ -155,8 +187,9 @@ mvn spring-boot:run -Pproduction
 ```
 Now you can go to your web browser and type in the local IP address of the computer there you started this Vaadin application.
 
-8. Upload Darknet files
+9. Upload Darknet files
 
 Go to https://github.com/AlexeyAB/darknet and download the sourcecode and follow the instructions how to compile under Linux. Then upload the `darknet`, `.data`, `.cfg`, `.weights`, `.names` files etc. to the `Darknet` folder inside this project. 
-There is a `YOLO 4` already included so you can if you want just try this first and see if you get predictions before you doing it any more.
-Notice that this `darknet` file included in this project is compiled under Lubuntu Linux 18.04 on a Dell Precision M6400 computer. It has no `GPU`, `CUDA`, `OPENCV`. Just default settings. 
+There is a `YOLO 4 Tiny` already included so you can if you want just try this first and see if you get predictions before you doing it any more.
+Notice that this `darknet` file included in this project is compiled under Lubuntu Linux 18.04 on a Dell Precision M6400 computer. It has no `GPU`, `CUDA`, `OPENCV`. Just default settings. You don't need OpenCV because this `Darknet` won't show the predictions.
+Vaadin handels that.

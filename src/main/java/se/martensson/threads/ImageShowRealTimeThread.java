@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
+
 import com.github.sarxos.webcam.Webcam;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -50,6 +52,9 @@ public class ImageShowRealTimeThread extends Thread {
 	private Button startStopYOLO;
 	private Select<String> cameras;
 	private Select<String> pictureSize;
+	private boolean hasDarknetFolderBeenDownloaded = false;
+	
+	public static final String ramDiskFolderPath = "/mnt/ramdisk/";
 
 	public ImageShowRealTimeThread() {
 		
@@ -59,53 +64,62 @@ public class ImageShowRealTimeThread extends Thread {
 	public void run() {
 		while (true) {
 			while (startStopThread.get()) {
-				/*
-				 * 1. Take a snap with camera
-				 * 2. Classify it
-				 * 3. Get the predicted objects
-				 * 4. Check the database if we need to send a mail
-				 */
 				try {
-					// This threads opens the camera
 					if(!selectedWebcam.isOpen()) {
 						ui.access(() -> enableDisableSelectAndButton()); // This will start the camera
 					}
-					// Snap
+					
+					// Snap with camera
 					BufferedImage cameraImage = selectedWebcam.getImage();
-					ByteArrayOutputStream byteImage = new ByteArrayOutputStream();
-					ImageIO.write(cameraImage, "png", byteImage);
-					byte[] streamBytes = byteImage.toByteArray();
-					// Classify
-					yoloDetection(streamBytes);
-					StreamResource resource = new StreamResource("predictions.jpg", () -> {
-						try {
-							return new FileInputStream(new File("Darknet/predictions.jpg"));
-						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+					if(cameraImage != null) {
+						ByteArrayOutputStream byteImage = new ByteArrayOutputStream();
+						ImageIO.write(cameraImage, "png", byteImage);
+						byte[] streamBytes = byteImage.toByteArray();
+						
+						// Save and then detect
+						saveStreamToImgFolder(streamBytes);
+						callDarkNetToDoItsPrediction();
+						
+						// Get the stream
+						StreamResource predictedFileAsStreamSource = getStreamResourceFromPredictionsFile();
+						if(predictedFileAsStreamSource != null) {
+							ui.access(() -> {
+								if(startStopThread.get()) // Prevents error if predictedFileAsStreamSource is non null and the predictions.jpg does not exist
+									realTimeCameraImage.setSrc(predictedFileAsStreamSource);
+								enableDisableSelectAndButton();
+							});
+						}else {
+							stopThread();
 						}
-						return null;
-					});
-					ui.access(() -> {
-						realTimeCameraImage.setSrc(resource);
-						enableDisableSelectAndButton();
-					});
+					}else {
+						stopThread();
+					}
 				} catch (Exception e) {
-					ui.access(() -> {
-						// Something bad happen
-						startStopThread.set(false); // Stop
-						enableDisableSelectAndButton();
-					});
+					// Something bad happen
+					e.printStackTrace();
+					stopThread();
 				}
 			}
 		}
 	}
 
-	private void yoloDetection(byte[] streamBytes) {
-		saveStreamToImgFolder(streamBytes);
-		callDarkNetToDoItsPrediction();
-
+	private void stopThread() {
+		ui.access(() -> {
+			startStopThread.set(false); // Stop
+			enableDisableSelectAndButton();
+		});
 	}
+
+	private StreamResource getStreamResourceFromPredictionsFile() {
+		return new StreamResource("predictions.jpg", () -> {
+			try {
+				return new FileInputStream(new File(ramDiskFolderPath + "Darknet/predictions.jpg"));
+			} catch (FileNotFoundException e) {
+				return null;
+			}
+		});
+	}
+
 
 	private void callDarkNetToDoItsPrediction() {
 		try {
@@ -114,13 +128,13 @@ public class ImageShowRealTimeThread extends Thread {
 			String dataFlag = data.getValue().getFilePath().replace("Darknet", "."); // E.g ./cfg/coco.data
 			String weightsFlag = weights.getValue().getFilePath().replace("Darknet", "."); // E.g ./weights/yolov4.weights
 			String cfgFlag = configuration.getValue().getFilePath().replace("Darknet", "."); // E.g ./cfg/yolov4.cfg
-			String imageFlag = "data/camera.png";
+			String imageFlag = "./data/camera.png";
 			String thresValue =  thresholds.getValue();
 
 			// Process builder
 			ProcessBuilder processBuilder = new ProcessBuilder();
-			processBuilder.directory(new File("Darknet")); // Important
-			processBuilder.command(darkPath, "detector", "test", dataFlag, cfgFlag, weightsFlag, imageFlag, "-thresh", thresValue); // E.g ./darknet detector test ./cfg/coco.data ./cfg/yolov4.cfg ./weights/yolov4.weights ./data/dog.jpg -thresh 0.4
+			processBuilder.directory(new File(ramDiskFolderPath + "Darknet")); // Important
+			processBuilder.command(darkPath, "detector", "test", dataFlag, cfgFlag, weightsFlag, imageFlag, "-thresh", thresValue, "-dont_show"); // E.g ./darknet detector test ./cfg/coco.data ./cfg/yolov4-tiny.cfg ./weights/yolov4-.weights ./data/camera.png -thresh 0.4 -dont_show
 			processBuilder.redirectErrorStream(true); // Important
 			Process process = processBuilder.start();
 			
@@ -143,7 +157,7 @@ public class ImageShowRealTimeThread extends Thread {
 			process.waitFor();  
 			
 			// Check the predicted object if we need to send a mail
-			compareObjects(predictedObjects);
+			compareDetectedObjectsWithDatabaseObjects(predictedObjects);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -155,7 +169,7 @@ public class ImageShowRealTimeThread extends Thread {
 
 	}
 
-	private void compareObjects(ArrayList<String> predictedObjects) {
+	private void compareDetectedObjectsWithDatabaseObjects(ArrayList<String> predictedObjects) {
 		List<YoloObjectEntity> databaseObjects = yoloObjectService.findAll();
 		for(YoloObjectEntity yoloObject : databaseObjects) {
 			for(String predicted : predictedObjects) {
@@ -175,7 +189,7 @@ public class ImageShowRealTimeThread extends Thread {
 	private void saveStreamToImgFolder(byte[] streamBytes) {
 		try {
 			// Save image
-			String picturePath = "Darknet/data/camera.png";
+			String picturePath = ramDiskFolderPath + "Darknet/data/camera.png";
 			Path path = Paths.get(picturePath); // If not exist
 			Files.createDirectories(path.getParent());
 			FileOutputStream fos = new FileOutputStream(picturePath);
@@ -231,6 +245,9 @@ public class ImageShowRealTimeThread extends Thread {
 				weights.setEnabled(false);
 				thresholds.setEnabled(false);
 				pictureSize.setEnabled(false);
+				if(!hasDarknetFolderBeenDownloaded)
+					copyDarknetFolderToRamdiskFolder();
+					
 			}catch(Exception e) {
 				new Notification("Select another camera", 3000).open();
 			}
@@ -246,7 +263,28 @@ public class ImageShowRealTimeThread extends Thread {
 			weights.setEnabled(true);
 			thresholds.setEnabled(true);
 			pictureSize.setEnabled(true);
+			if(hasDarknetFolderBeenDownloaded)
+				deleteDarknetFolderInRamdisk();
 		}
 	}
-
+	
+	private void deleteDarknetFolderInRamdisk() {
+		try {
+			FileUtils.deleteDirectory(new File(ramDiskFolderPath + "Darknet"));
+			hasDarknetFolderBeenDownloaded = false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void copyDarknetFolderToRamdiskFolder(){
+		try {
+			FileUtils.copyDirectory(new File("Darknet"), new File(ramDiskFolderPath + "Darknet"));
+			hasDarknetFolderBeenDownloaded = true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

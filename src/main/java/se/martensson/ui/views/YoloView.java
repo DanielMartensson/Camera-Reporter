@@ -2,10 +2,19 @@ package se.martensson.ui.views;
 
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import com.github.sarxos.webcam.Webcam;
 import com.vaadin.flow.component.UI;
@@ -40,30 +49,28 @@ public class YoloView extends AppLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String START = "START";
 	public static final String STOP = "STOP";
-	
-	
+
 	// For the thread
 	private static AtomicBoolean startStopThread = null;
 	private static ImageShowRealTimeThread imageShowRealTimeThread = null;
 	private static Webcam selectedWebcam = null;
-	
+
 	// Selected values - Save them
 	private static String selectedCamera = null;
 	private static ListUploadedFiles selectedDarknet = null;
 	private static ListUploadedFiles selectedConfiguration = null;
 	private static ListUploadedFiles selectedData = null;
 	private static ListUploadedFiles selectedWeights = null;
-	
+
 	// Default values
 	private static String selectedThreshold = "1.0";
 	private static String selectedPictureSize = "176x144";
 
 	// This need to be a non-static field
 	private Button startStopYOLO = null;
-
 
 	public YoloView(YoloObjectService yoloObjectService, SendMail sendMail) {
 		// Banner and tabs
@@ -73,7 +80,7 @@ public class YoloView extends AppLayout {
 
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
-		Select<String> pictureSize = new Select<String>(new String[] {"160x120", "176x144", "320x240", "352x288", "640x480", "1024x768", "1280x1024"});
+		Select<String> pictureSize = new Select<String>(new String[] { "160x120", "176x144", "320x240", "352x288", "640x480", "1024x768", "1280x1024" });
 		pictureSize.setEnabled(false);
 		pictureSize.setLabel("Video Size Stream");
 		setPictureSize(pictureSize, realTimeCameraImage);
@@ -89,20 +96,20 @@ public class YoloView extends AppLayout {
 		Select<ListUploadedFiles> weights = new Select<ListUploadedFiles>();
 		weights.setLabel("Weights");
 		scanFiles(darknet, selectedDarknet, configuration, selectedConfiguration, data, selectedData, weights, selectedWeights);
-		Select<String> thresholds = new Select<String>(new String[] { "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"});
+		Select<String> thresholds = new Select<String>(new String[] { "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
 		thresholds.setLabel("Thresholds");
 		setPastThresholdValue(thresholds);
-		
+
 		// Start and stop button for YOLO
 		startStopYOLO = new Button(START);
 		startStopYoloConfiguration();
 
 		// Create the thread
-		if(imageShowRealTimeThread == null) {
+		if (imageShowRealTimeThread == null) {
 			startStopThread = new AtomicBoolean(false);
 			imageShowRealTimeThread = new ImageShowRealTimeThread();
 		}
-		
+
 		// Create the drop down button for the camera
 		Select<String> cameras = new Select<String>();
 		cameras.setLabel("Camera");
@@ -112,13 +119,12 @@ public class YoloView extends AppLayout {
 		configuration.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights));
 		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, pictureSize);
 		enableCameraDropDownButton(cameras, darknet, configuration, data, weights);
-		
+
 		// Set the components to the thread
 		imageShowRealTimeThread.setComponentsToThread(startStopYOLO, startStopThread, UI.getCurrent(), darknet, configuration, data, weights, thresholds, yoloObjectService, sendMail, cameras, selectedWebcam, realTimeCameraImage, pictureSize);
-		if(!imageShowRealTimeThread.isAlive())
+		if (!imageShowRealTimeThread.isAlive())
 			imageShowRealTimeThread.start();
 
-		
 		// Content
 		VerticalLayout layout = new VerticalLayout();
 		layout.add(new FormLayout(startStopYOLO, cameras, darknet, configuration, data, weights, thresholds, pictureSize));
@@ -133,20 +139,20 @@ public class YoloView extends AppLayout {
 		pictureSize.addValueChangeListener(e -> {
 			// Change the display image
 			String size = e.getValue();
-			selectedPictureSize = size; // Remember 
+			selectedPictureSize = size; // Remember
 			String[] width_height = size.split("x");
 			realTimeCameraImage.setWidth(width_height[0] + "px");
 			realTimeCameraImage.setHeight(width_height[1] + "px");
-			
+
 			// Change the camera
-			if(selectedWebcam != null) {
-				if(!selectedWebcam.isOpen()) {
+			if (selectedWebcam != null) {
+				if (!selectedWebcam.isOpen()) {
 					try {
 						selectedWebcam.setViewSize(new Dimension(Integer.parseInt(width_height[0]), Integer.parseInt(width_height[1])));
-					}catch(Exception e1) {
+					} catch (Exception e1) {
 						new Notification(e1.getMessage(), 3000).open();
 					}
-				}else {
+				} else {
 					new Notification("You can only set the camera size when the camera is closed", 3000).open();
 				}
 			}
@@ -154,17 +160,17 @@ public class YoloView extends AppLayout {
 	}
 
 	private void startStopYoloConfiguration() {
-		startStopYOLO.setEnabled(false);
-		if(selectedWebcam != null) {
-			if(selectedWebcam.isOpen()) {
+		startStopYOLO.setEnabled(false); // Need to be before the listener
+		if (selectedWebcam != null) {
+			if (selectedWebcam.isOpen()) {
 				startStopYOLO.setEnabled(true);
 			}
 		}
 		startStopYOLO.addClickListener(e -> {
-			if(startStopThread.get()) {
-				startStopThread.set(false);
-			}else {
-				startStopThread.set(true);
+			if (startStopThread.get()) {
+				startStopThread.set(false); // Stop YOLO
+			} else {
+				startStopThread.set(true); // Start YOLO
 			}
 		});
 	}
@@ -207,18 +213,17 @@ public class YoloView extends AppLayout {
 		for (File file : files)
 			list.add(new ListUploadedFiles(file.getPath(), file));
 		selector.setItems(list);
-		
+
 		// Set to the current value
-		if(selectedFile != null) {
-			for(ListUploadedFiles l : list) {
-				if(selectedFile.getFilePath().equals(l.getFilePath())) {
+		if (selectedFile != null) {
+			for (ListUploadedFiles l : list) {
+				if (selectedFile.getFilePath().equals(l.getFilePath())) {
 					selector.setValue(l);
 				}
 			}
 		}
 		selector.setTextRenderer(ListUploadedFiles::getFilePath);
 	}
-
 
 	/**
 	 * This creates the camera selector drop down button and also gives it a
@@ -231,7 +236,7 @@ public class YoloView extends AppLayout {
 	 * @param data
 	 * @param darknet
 	 * @param thresholds
-	 * @param pictureSize 
+	 * @param pictureSize
 	 */
 	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
 		// Fill with camera names
@@ -257,7 +262,7 @@ public class YoloView extends AppLayout {
 				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, pictureSize);
 			}
 		});
-		if(selectedCamera != null) {
+		if (selectedCamera != null) {
 			cameras.setValue(selectedCamera);
 		}
 	}
@@ -272,7 +277,7 @@ public class YoloView extends AppLayout {
 	 * @param data
 	 * @param darknet
 	 * @param thresholds
-	 * @param pictureSize 
+	 * @param pictureSize
 	 */
 	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
 		List<Webcam> webcamsList = Webcam.getWebcams();
