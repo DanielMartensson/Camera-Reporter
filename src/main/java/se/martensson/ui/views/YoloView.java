@@ -2,19 +2,10 @@ package se.martensson.ui.views;
 
 import java.awt.Dimension;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
 import com.github.sarxos.webcam.Webcam;
 import com.vaadin.flow.component.UI;
