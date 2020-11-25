@@ -22,6 +22,7 @@ import com.github.sarxos.webcam.Webcam;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.server.StreamResource;
 
@@ -48,6 +49,7 @@ public class ImageShowRealTimeThread extends Thread {
 	private SendMail sendMail;
 	private Button startStopYOLO;
 	private Select<String> cameras;
+	private Select<String> pictureSize;
 
 	public ImageShowRealTimeThread() {
 		
@@ -64,6 +66,10 @@ public class ImageShowRealTimeThread extends Thread {
 				 * 4. Check the database if we need to send a mail
 				 */
 				try {
+					// This threads opens the camera
+					if(!selectedWebcam.isOpen()) {
+						ui.access(() -> enableDisableSelectAndButton()); // This will start the camera
+					}
 					// Snap
 					BufferedImage cameraImage = selectedWebcam.getImage();
 					ByteArrayOutputStream byteImage = new ByteArrayOutputStream();
@@ -84,9 +90,12 @@ public class ImageShowRealTimeThread extends Thread {
 						realTimeCameraImage.setSrc(resource);
 						enableDisableSelectAndButton();
 					});
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					ui.access(() -> {
+						// Something bad happen
+						startStopThread.set(false); // Stop
+						enableDisableSelectAndButton();
+					});
 				}
 			}
 		}
@@ -191,7 +200,7 @@ public class ImageShowRealTimeThread extends Thread {
 		}
 	}
 
-	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage) {
+	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage, Select<String> pictureSize) {
 		this.startStopYOLO = startStopYOLO;
 		this.startStopThread = startStopThread;
 		this.ui = ui;
@@ -205,20 +214,29 @@ public class ImageShowRealTimeThread extends Thread {
 		this.cameras = cameras;
 		this.selectedWebcam = selectedWebcam;
 		this.realTimeCameraImage = realTimeCameraImage;
+		this.pictureSize = pictureSize;
 	}
 	
 	private void enableDisableSelectAndButton() {
 		if (startStopThread.get() == true) {
-			startStopYOLO.setText(YoloView.STOP);
-			startStopYOLO.setEnabled(true);
-			startStopThread.set(true); // Start YOLO program here
-			cameras.setEnabled(false);
-			darknet.setEnabled(false);
-			configuration.setEnabled(false);
-			data.setEnabled(false);
-			weights.setEnabled(false);
-			thresholds.setEnabled(false);
+			try {
+				selectedWebcam.open(); 
+				startStopYOLO.setText(YoloView.STOP);
+				startStopYOLO.setEnabled(true);
+				startStopThread.set(true); // Start YOLO program here
+				cameras.setEnabled(false);
+				darknet.setEnabled(false);
+				configuration.setEnabled(false);
+				data.setEnabled(false);
+				weights.setEnabled(false);
+				thresholds.setEnabled(false);
+				pictureSize.setEnabled(false);
+			}catch(Exception e) {
+				new Notification("Select another camera", 3000).open();
+			}
+			
 		} else {
+			selectedWebcam.close(); 
 			startStopYOLO.setText(YoloView.START);
 			startStopThread.set(false); // Stop YOLO program here
 			cameras.setEnabled(true);
@@ -227,6 +245,7 @@ public class ImageShowRealTimeThread extends Thread {
 			data.setEnabled(true);
 			weights.setEnabled(true);
 			thresholds.setEnabled(true);
+			pictureSize.setEnabled(true);
 		}
 	}
 

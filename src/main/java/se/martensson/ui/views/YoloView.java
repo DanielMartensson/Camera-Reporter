@@ -1,5 +1,6 @@
 package se.martensson.ui.views;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,8 +56,10 @@ public class YoloView extends AppLayout {
 	private static ListUploadedFiles selectedConfiguration = null;
 	private static ListUploadedFiles selectedData = null;
 	private static ListUploadedFiles selectedWeights = null;
-	private static String selectedThreshold = null;
-	private static String selectedPictureSize = null;
+	
+	// Default values
+	private static String selectedThreshold = "1.0";
+	private static String selectedPictureSize = "176x144";
 
 	// This need to be a non-static field
 	private Button startStopYOLO = null;
@@ -70,7 +73,8 @@ public class YoloView extends AppLayout {
 
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
-		Select<String> pictureSize = new Select<String>(new String[] {"608x608", "512x512", "416x416", "320x320", "Real Video Size"});
+		Select<String> pictureSize = new Select<String>(new String[] {"160x120", "176x144", "320x240", "352x288", "640x480", "1024x768", "1280x1024"});
+		pictureSize.setEnabled(false);
 		pictureSize.setLabel("Video Size Stream");
 		setPictureSize(pictureSize, realTimeCameraImage);
 		realTimeCameraImage.setTitle("Real Time Video");
@@ -102,15 +106,15 @@ public class YoloView extends AppLayout {
 		// Create the drop down button for the camera
 		Select<String> cameras = new Select<String>();
 		cameras.setLabel("Camera");
-		darknet.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
-		data.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
-		weights.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
-		thresholds.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds));
-		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
-		enableCameraDropDownButton(cameras, darknet, configuration, data, weights, thresholds);
+		darknet.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights));
+		data.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights));
+		weights.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights));
+		configuration.addValueChangeListener(e -> enableCameraDropDownButton(cameras, darknet, configuration, data, weights));
+		createCameraSelectorButton(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, pictureSize);
+		enableCameraDropDownButton(cameras, darknet, configuration, data, weights);
 		
 		// Set the components to the thread
-		imageShowRealTimeThread.setComponentsToThread(startStopYOLO, startStopThread, UI.getCurrent(), darknet, configuration, data, weights, thresholds, yoloObjectService, sendMail, cameras, selectedWebcam, realTimeCameraImage);
+		imageShowRealTimeThread.setComponentsToThread(startStopYOLO, startStopThread, UI.getCurrent(), darknet, configuration, data, weights, thresholds, yoloObjectService, sendMail, cameras, selectedWebcam, realTimeCameraImage, pictureSize);
 		if(!imageShowRealTimeThread.isAlive())
 			imageShowRealTimeThread.start();
 
@@ -125,26 +129,28 @@ public class YoloView extends AppLayout {
 	}
 
 	private void setPictureSize(Select<String> pictureSize, Image realTimeCameraImage) {
-		pictureSize.setValue("Real Video Size"); // Default value
+		pictureSize.setValue(selectedPictureSize); // This need to before the declare of the listener
 		pictureSize.addValueChangeListener(e -> {
+			// Change the display image
 			String size = e.getValue();
-			String[] height_width = size.split("x");
-			switch(size) {
-			case "Real Video Size":
-				realTimeCameraImage.setSizeUndefined();
-				break;
-			default:
-				realTimeCameraImage.setWidth(height_width[1] + "px");
-				realTimeCameraImage.setHeight(height_width[0] + "px");
-				break;
+			selectedPictureSize = size; // Remember 
+			String[] width_height = size.split("x");
+			realTimeCameraImage.setWidth(width_height[0] + "px");
+			realTimeCameraImage.setHeight(width_height[1] + "px");
+			
+			// Change the camera
+			if(selectedWebcam != null) {
+				if(!selectedWebcam.isOpen()) {
+					try {
+						selectedWebcam.setViewSize(new Dimension(Integer.parseInt(width_height[0]), Integer.parseInt(width_height[1])));
+					}catch(Exception e1) {
+						new Notification(e1.getMessage(), 3000).open();
+					}
+				}else {
+					new Notification("You can only set the camera size when the camera is closed", 3000).open();
+				}
 			}
-			selectedPictureSize = size;
-			
 		});
-		if(selectedPictureSize != null) {
-			pictureSize.setValue(selectedPictureSize);
-		}
-			
 	}
 
 	private void startStopYoloConfiguration() {
@@ -164,15 +170,12 @@ public class YoloView extends AppLayout {
 	}
 
 	private void setPastThresholdValue(Select<String> thresholds) {
-		thresholds.addValueChangeListener(e -> {
-			selectedThreshold = e.getValue();
-		});
-		if(selectedThreshold != null)
-			thresholds.setValue(selectedThreshold);
+		thresholds.addValueChangeListener(e -> selectedThreshold = e.getValue());
+		thresholds.setValue(selectedThreshold);
 	}
 
-	private void enableCameraDropDownButton(Select<String> cameras, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
-		if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
+	private void enableCameraDropDownButton(Select<String> cameras, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights) {
+		if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null) {
 			cameras.setEnabled(true);
 		} else {
 			cameras.setEnabled(false);
@@ -228,8 +231,9 @@ public class YoloView extends AppLayout {
 	 * @param data
 	 * @param darknet
 	 * @param thresholds
+	 * @param pictureSize 
 	 */
-	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
+	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
 		// Fill with camera names
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String[] webcamNames = new String[webcamsList.size()];
@@ -247,10 +251,10 @@ public class YoloView extends AppLayout {
 		// Add a listener for enabling the camera
 		cameras.addValueChangeListener(e -> {
 			if (selectedWebcam == null) {
-				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
+				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, pictureSize);
 			} else {
 				selectedWebcam.close();
-				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, thresholds);
+				selectNewCamera(cameras, imageShowRealTimeThread, realTimeCameraImage, darknet, configuration, data, weights, pictureSize);
 			}
 		});
 		if(selectedCamera != null) {
@@ -268,27 +272,27 @@ public class YoloView extends AppLayout {
 	 * @param data
 	 * @param darknet
 	 * @param thresholds
+	 * @param pictureSize 
 	 */
-	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds) {
+	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String selectedCameraName = cameras.getValue();
 		selectedCamera = cameras.getValue();
 		selectedWebcam = webcamsList.stream().filter(x -> selectedCameraName.equals(x.getName())).findFirst().get(); // This generates a new object of the web cam
 		try {
-			if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null && thresholds.getValue() != null) {
-				selectedWebcam.open();
+			if (darknet.getValue() != null && configuration.getValue() != null && data.getValue() != null && weights.getValue() != null) {
 				startStopYOLO.setEnabled(true);
+				pictureSize.setEnabled(true);
 				imageShowRealTimeThread.setSelectedWebcam(selectedWebcam);
 			} else {
 				startStopYOLO.setEnabled(false);
-				Notification notification = new Notification("You need to select the YOLO files!", 2000);
-				notification.open();
+				pictureSize.setEnabled(false);
+				new Notification("You need to select the YOLO files!", 3000).open();
 			}
 
 		} catch (Exception e) {
 			startStopYOLO.setEnabled(false);
-			Notification notification = new Notification("You cannot select this camera!", 2000);
-			notification.open();
+			new Notification("You cannot select this camera!", 3000).open();
 		}
 	}
 }
