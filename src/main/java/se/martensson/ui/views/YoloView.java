@@ -26,6 +26,7 @@ import com.vaadin.flow.server.PWA;
 import se.martensson.component.SendMail;
 import se.martensson.service.YoloObjectService;
 import se.martensson.threads.ImageShowRealTimeThread;
+import se.martensson.ui.views.lists.Resolutions;
 import se.martensson.ui.views.templates.BarForAppLayout;
 import se.martensson.ui.views.templates.ListUploadedFiles;
 
@@ -55,10 +56,10 @@ public class YoloView extends AppLayout {
 	private static ListUploadedFiles selectedConfiguration = null;
 	private static ListUploadedFiles selectedData = null;
 	private static ListUploadedFiles selectedWeights = null;
+	private static Resolutions selectedPictureSize = null;
 
 	// Default values
 	private static String selectedThreshold = "1.0";
-	private static String selectedPictureSize = "176x144";
 
 	// This need to be a non-static field
 	private Button startStopYOLO = null;
@@ -71,7 +72,7 @@ public class YoloView extends AppLayout {
 
 		// Create image for the real time
 		Image realTimeCameraImage = new Image();
-		Select<String> pictureSize = new Select<String>(new String[] { "160x120", "176x144", "320x240", "352x288", "640x480", "1024x768", "1280x1024" });
+		Select<Resolutions> pictureSize = new Select<Resolutions>();
 		pictureSize.setEnabled(false);
 		pictureSize.setLabel("Video Size Stream");
 		setPictureSize(pictureSize, realTimeCameraImage);
@@ -125,24 +126,21 @@ public class YoloView extends AppLayout {
 		
 	}
 
-	private void setPictureSize(Select<String> pictureSize, Image realTimeCameraImage) {
-		pictureSize.setValue(selectedPictureSize); // This need to before the declare of the listener
+	private void setPictureSize(Select<Resolutions> pictureSize, Image realTimeCameraImage) {
+		if(selectedPictureSize != null)
+			pictureSize.setValue(selectedPictureSize); // This need to before the declare of the listener
 		pictureSize.addValueChangeListener(e -> {
 			// Change the display image
-			String size = e.getValue();
-			selectedPictureSize = size; // Remember
-			String[] width_height = size.split("x");
-			realTimeCameraImage.setWidth(width_height[0] + "px");
-			realTimeCameraImage.setHeight(width_height[1] + "px");
+			int height = e.getValue().getDimension().height;
+			int width = e.getValue().getDimension().width;
+			selectedPictureSize = e.getValue(); // Remember
+			realTimeCameraImage.setWidth(width + "px");
+			realTimeCameraImage.setHeight(height + "px");
 
 			// Change the camera
 			if (selectedWebcam != null) {
 				if (!selectedWebcam.isOpen()) {
-					try {
-						selectedWebcam.setViewSize(new Dimension(Integer.parseInt(width_height[0]), Integer.parseInt(width_height[1])));
-					} catch (Exception e1) {
-						new Notification(e1.getMessage(), 3000).open();
-					}
+					selectedWebcam.setViewSize(new Dimension(width, height));
 				} else {
 					new Notification("You can only set the camera size when the camera is closed", 3000).open();
 				}
@@ -229,7 +227,7 @@ public class YoloView extends AppLayout {
 	 * @param thresholds
 	 * @param pictureSize
 	 */
-	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
+	private void createCameraSelectorButton(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<Resolutions> pictureSize) {
 		// Fill with camera names
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String[] webcamNames = new String[webcamsList.size()];
@@ -270,7 +268,7 @@ public class YoloView extends AppLayout {
 	 * @param thresholds
 	 * @param pictureSize
 	 */
-	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> pictureSize) {
+	private void selectNewCamera(Select<String> cameras, ImageShowRealTimeThread imageShowRealTimeThread, Image realTimeCameraImage, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<Resolutions> pictureSize) {
 		List<Webcam> webcamsList = Webcam.getWebcams();
 		String selectedCameraName = cameras.getValue();
 		selectedCamera = cameras.getValue();
@@ -280,6 +278,7 @@ public class YoloView extends AppLayout {
 				startStopYOLO.setEnabled(true);
 				pictureSize.setEnabled(true);
 				imageShowRealTimeThread.setSelectedWebcam(selectedWebcam);
+				fillPictureSizesDropdownButton(pictureSize);
 			} else {
 				startStopYOLO.setEnabled(false);
 				pictureSize.setEnabled(false);
@@ -290,5 +289,14 @@ public class YoloView extends AppLayout {
 			startStopYOLO.setEnabled(false);
 			new Notification("You cannot select this camera!", 3000).open();
 		}
+	}
+
+	private void fillPictureSizesDropdownButton(Select<Resolutions> pictureSize) {
+		pictureSize.clear();
+		ArrayList<Resolutions> list = new ArrayList<>();
+		for(Dimension dimension : selectedWebcam.getViewSizes()) {
+			list.add(new Resolutions(dimension.getWidth(), dimension.getHeight(), dimension));
+		}
+		pictureSize.setItems(list);		
 	}
 }

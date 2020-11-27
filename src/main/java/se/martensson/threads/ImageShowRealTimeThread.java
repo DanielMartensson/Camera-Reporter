@@ -2,16 +2,11 @@ package se.martensson.threads;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,6 +28,7 @@ import se.martensson.component.SendMail;
 import se.martensson.entity.YoloObjectEntity;
 import se.martensson.service.YoloObjectService;
 import se.martensson.ui.views.YoloView;
+import se.martensson.ui.views.lists.Resolutions;
 import se.martensson.ui.views.templates.ListUploadedFiles;
 
 public class ImageShowRealTimeThread extends Thread {
@@ -51,7 +47,7 @@ public class ImageShowRealTimeThread extends Thread {
 	private SendMail sendMail;
 	private Button startStopYOLO;
 	private Select<String> cameras;
-	private Select<String> pictureSize;
+	private Select<Resolutions> pictureSize;
 	private boolean hasDarknetFolderBeenDownloaded = false;
 	
 	public static final String ramDiskFolderPath = "/mnt/ramdisk/";
@@ -71,13 +67,9 @@ public class ImageShowRealTimeThread extends Thread {
 					
 					// Snap with camera
 					BufferedImage cameraImage = selectedWebcam.getImage();
-					if(cameraImage != null) {
-						ByteArrayOutputStream byteImage = new ByteArrayOutputStream();
-						ImageIO.write(cameraImage, "png", byteImage);
-						byte[] streamBytes = byteImage.toByteArray();
-						
+					if(cameraImage != null) {						
 						// Save and then detect
-						saveStreamToImgFolder(streamBytes);
+						saveStreamToImgFolder(cameraImage);
 						callDarkNetToDoItsPrediction();
 						
 						// Get the stream
@@ -186,35 +178,26 @@ public class ImageShowRealTimeThread extends Thread {
 		}
 	}
 
-	private void saveStreamToImgFolder(byte[] streamBytes) {
+	private void saveStreamToImgFolder(BufferedImage cameraImage) {
 		try {
-			// Save image
-			String picturePath = ramDiskFolderPath + "Darknet/data/camera.png";
-			Path path = Paths.get(picturePath); // If not exist
-			Files.createDirectories(path.getParent());
-			FileOutputStream fos = new FileOutputStream(picturePath);
-			fos.write(streamBytes);
-			fos.close();
-
-			// Mirror it
-			BufferedImage image = ImageIO.read(new File(picturePath));
-			int width = image.getWidth();
-			int height = image.getHeight();
+			// Mirror it before we save it
+			int width = cameraImage.getWidth();
+			int height = cameraImage.getHeight();
 			BufferedImage mirror = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			for (int y = 0; y < height; y++) {
 				for (int lx = 0, rx = width - 1; lx < width; lx++, rx--) {
-					int p = image.getRGB(lx, y);
+					int p = cameraImage.getRGB(lx, y);
 					mirror.setRGB(rx, y, p);
 				}
 			}
-			ImageIO.write(mirror, "png", new File(picturePath)); 
+			ImageIO.write(mirror, "png", new File(ramDiskFolderPath + "Darknet/data/camera.png")); 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage, Select<String> pictureSize) {
+	public void setComponentsToThread(Button startStopYOLO, AtomicBoolean startStopThread, UI ui, Select<ListUploadedFiles> darknet, Select<ListUploadedFiles> configuration, Select<ListUploadedFiles> data, Select<ListUploadedFiles> weights, Select<String> thresholds, YoloObjectService yoloObjectService, SendMail sendMail, Select<String> cameras, Webcam selectedWebcam, Image realTimeCameraImage, Select<Resolutions> pictureSize) {
 		this.startStopYOLO = startStopYOLO;
 		this.startStopThread = startStopThread;
 		this.ui = ui;
