@@ -4,6 +4,7 @@
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/ui/views/FileUploaderView.java
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/ui/views/MailConfigurationView.java
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/configuration/MailConfiguration.java
+/home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/ui/views/lists/Resolutions.java
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/ui/views/templates/BarForAppLayout.java
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/entity/YoloObjectEntity.java
 /home/dell/Dokument/GitHub/Camera-Reporter/src/main/java/se/martensson/Application.java

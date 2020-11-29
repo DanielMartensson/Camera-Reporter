@@ -218,7 +218,7 @@ public class FileUploaderView extends AppLayout {
 			// Remove the first line and add the last line
 			String newText = "";
 			for(int i = 1; i < currentLines.length; i++) 
-				newText += currentLines[i];
+				newText += currentLines[i] + "\n";
 			newText += newLine;
 			terminal.setValue(newText);
 		}else {
