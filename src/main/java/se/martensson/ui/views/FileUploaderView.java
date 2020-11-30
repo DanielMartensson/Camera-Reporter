@@ -214,17 +214,16 @@ public class FileUploaderView extends AppLayout {
 	private void writeToTerminal(String newLine, TextArea terminal) {
 		String currentText = terminal.getValue();
 		String[] currentLines = currentText.split("\n");
+		String newText = "";
 		if(currentLines.length > 30) {
 			// Remove the first line and add the last line
-			String newText = "";
 			for(int i = 1; i < currentLines.length; i++) 
 				newText += currentLines[i] + "\n";
 			newText += newLine;
 			terminal.setValue(newText);
 		}else {
-			// Just add
-			String newText = currentText + "\n" + newLine;
-			terminal.setValue(newText);
+			newText = currentText + "\n" + newLine; // Just add
 		}	
+		terminal.setValue(newText);
 	}
 }
