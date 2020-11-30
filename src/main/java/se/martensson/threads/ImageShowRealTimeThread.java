@@ -151,14 +151,9 @@ public class ImageShowRealTimeThread extends Thread {
 			// Check the predicted object if we need to send a mail
 			compareDetectedObjectsWithDatabaseObjects(predictedObjects);
 			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void compareDetectedObjectsWithDatabaseObjects(ArrayList<String> predictedObjects) {
@@ -180,17 +175,7 @@ public class ImageShowRealTimeThread extends Thread {
 
 	private void saveStreamToImgFolder(BufferedImage cameraImage) {
 		try {
-			// Mirror it before we save it
-			int width = cameraImage.getWidth();
-			int height = cameraImage.getHeight();
-			BufferedImage mirror = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			for (int y = 0; y < height; y++) {
-				for (int lx = 0, rx = width - 1; lx < width; lx++, rx--) {
-					int p = cameraImage.getRGB(lx, y);
-					mirror.setRGB(rx, y, p);
-				}
-			}
-			ImageIO.write(mirror, "png", new File(ramDiskFolderPath + "Darknet/data/camera.png")); 
+			ImageIO.write(cameraImage, "png", new File(ramDiskFolderPath + "Darknet/data/camera.png")); 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
