@@ -18,16 +18,16 @@ Use this software if you want handel intelligent monitoring for security.
 
 My desktop with a poor old Dell Precision M6400 from 2007. Yes, it works but it's about 2 seconds delay per image for `Yolov4-tiny` model.
 
-![a](https://raw.githubusercontent.com/DanielMartensson/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/master/Pictures/Screenshot.png)
+![a](https://raw.githubusercontent.com/DanielMartensson/Camera-Reporter/master/Pictures/Screenshot.png)
 
 
 Mail configuration and message
 
-![a](https://raw.githubusercontent.com/DanielMartensson/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/master/Pictures/MailConfig.png)
+![a](https://raw.githubusercontent.com/DanielMartensson/Camera-Reporter/master/Pictures/MailConfig.png)
 
 Darknet files upload
 
-![a](https://raw.githubusercontent.com/DanielMartensson/Vaadin-DL4J-YOLO-Camera-Mail-Reporter/master/Pictures/DarknetUpload.png)
+![a](https://raw.githubusercontent.com/DanielMartensson/Camera-Reporter/master/Pictures/DarknetUpload.png)
 
 # How to install - Ubuntu user
 
@@ -142,15 +142,6 @@ Here you can set the configuration for your database LAN address, user and passw
 password. 
 
 ```
-server.port=${PORT:8080}
-# Ensure application is run in Vaadin 14/npm mode
-vaadin.compatibilityMode = false
-logging.level.org.atmosphere = warn
-
-# To improve the performance during development. 
-# For more information https://vaadin.com/docs/v14/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
-# vaadin.whitelisted-packages= org/vaadin/example
-
 # Database
 spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=update
