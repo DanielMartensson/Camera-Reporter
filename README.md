@@ -176,7 +176,7 @@ Stand inside of the folder `Camera-Reporter` and write inside your terminal
 ```
 mvn spring-boot:run -Pproduction
 ```
-Now you can go to your web browser and type in the local IP address of the computer there you started this Vaadin application.
+Now you can go to your web browser and type in the local IP address of the computer there you started this application.
 
 9. Upload Darknet files
 
